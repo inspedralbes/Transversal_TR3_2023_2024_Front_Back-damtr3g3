@@ -1,4 +1,4 @@
-# 🚀 Grup3: LavaGame
+# 🚀 Grup3: Front/Back
 
 ## 👥 Membres de l'equip
 - Ruben Serrano
@@ -11,11 +11,9 @@ El nostre projecte està actualment en creació.
 http://------.dam.inspedralbes.cat
 
 ## 🎨 LLenguates utilizats 
-- Java
 - JavaScript
 - Python
 - Css
-- Libgdx
 - Vue
 
 ## 📝 Observaciones
