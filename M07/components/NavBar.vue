@@ -3,12 +3,21 @@
       <nav class="container mx-auto p-4 flex justify-between">
         <NuxtLink to="/" class="font-bold">Inici</NuxtLink>
         <ul class="flex gap-4">
-          <li><NuxtLink to="/">Home</NuxtLink></li>
-          <li><NuxtLink to="/about">About</NuxtLink></li>
+          <li><NuxtLink to="/">Inici</NuxtLink></li>
+          <li><NuxtLink to="/processos">Processos</NuxtLink></li>
+          <li><NuxtLink to="/sprites">Sprites</NuxtLink></li>
+          <li><NuxtLink to="/stats">Stats</NuxtLink></li>
         </ul>
       </nav>
     </header>
-    <div class="container mx-auto p-4">
-      <slot />
-    </div>
   </template>
+
+  
+<style scoped>
+.router-link-exact-active {
+  color: #12b488;
+}
+nav{
+  font-size: 20px;
+}
+</style>
