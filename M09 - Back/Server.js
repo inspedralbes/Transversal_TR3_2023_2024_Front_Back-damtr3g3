@@ -1,4 +1,5 @@
 const mysql = require('mysql2/promise');
+const bcrypt = require('bcrypt');
 const express = require('express');
 const app = express();
 const fs = require('fs');
@@ -42,49 +43,44 @@ app.use(session({
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
 
-app.post("/usuarisLogin", function (req, res) {
-    const user = req.body;
-    let usuariTrobat = false;
-  
-    autoritzacio = { "autoritzacio": false };
-  
-    usuaris = getUsuarisLogin(connection).then((usuaris) => {
-        usuaris = JSON.parse(usuaris)
-        console.log(usuaris)
-        for (var i = 0; i < usuaris.length && usuariTrobat == false; i++) {
-  
-            if (usuaris[i].nomCognoms == user.nomCognoms) {
-                contra = (user.contrasenya)
-                if (usuaris[i].contrasenya == contra) {
-                    usuariTrobat = true;
-                    req.session.nombre = user.nomCognoms;
-                    usuariLog = req.session.nombre
-                }
-            }
-        }
-        autoritzacio.autoritzacio = usuariTrobat;
-        res.json(autoritzacio)
-    })
-  })
-  
-  app.post("/registrarUsuari", function (req, res) {
-    nouUsuari = {
-        "nomCognoms": req.body.nomCognoms,
-        "correu": req.body.correu,
-        "contrasenya": req.body.contrasenya,  
-    }
-    autoritzacio = { "autoritzacio": false };
-    auto = registrarUsuariJoc(connection, nouUsuari).then((auto) => {
-        autoritzacio.autoritzacio = auto
-        if (autoritzacio.autoritzacio) {
-            req.session.nombre = req.body.nomCognoms;
-            usuariLog = req.session.nombre
-        }
-        res.json(autoritzacio)
-    })
-  })
-  
+app.post("/usuarisLogin", async function (req, res) {
+  const user = req.body;
+  let usuariTrobat = false;
 
+  autoritzacio = { "autoritzacio": false };
+
+  usuaris = await getUsuarisLogin(connection);
+  usuaris = JSON.parse(usuaris)
+  console.log(usuaris)
+  for (var i = 0; i < usuaris.length && usuariTrobat == false; i++) {
+      if (usuaris[i].nomCognoms == user.nomCognoms) {
+          const match = await bcrypt.compare(user.contrasenya, usuaris[i].contrasenya);
+          if (match) {
+              usuariTrobat = true;
+              req.session.nombre = user.nomCognoms;
+              usuariLog = req.session.nombre
+          }
+      }
+  }
+  autoritzacio.autoritzacio = usuariTrobat;
+  res.json(autoritzacio)
+})
+
+app.post("/registrarUsuari", async function (req, res) {
+  nouUsuari = {
+      "nomCognoms": req.body.nomCognoms,
+      "correu": req.body.correu,
+      "contrasenya": req.body.contrasenya,  
+  }
+  autoritzacio = { "autoritzacio": false };
+  auto = await registrarUsuariJoc(connection, nouUsuari);
+  autoritzacio.autoritzacio = auto
+  if (autoritzacio.autoritzacio) {
+      req.session.nombre = req.body.nomCognoms;
+      usuariLog = req.session.nombre
+  }
+  res.json(autoritzacio)
+})
 
 
 
