@@ -6,5 +6,9 @@ export default defineNuxtConfig({
   //vite: { ssr: { noExternal: ["vuetify"]} },
   devtools: { enabled: true },
 
-  modules: ["@nuxtjs/google-fonts", "@nuxtjs/tailwindcss"],
+  modules: [
+    "@nuxtjs/google-fonts",
+    "@nuxtjs/tailwindcss",
+    "@nuxtjs/color-mode",
+  ],
 });
