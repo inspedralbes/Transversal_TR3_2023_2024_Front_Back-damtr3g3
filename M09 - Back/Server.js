@@ -11,6 +11,7 @@ const http = require('http');
 const { spawn } = require('child_process');
 var session = require('express-session')
 const {getUsuarisLogin, registrarUsuariJoc} = require('../M06 - Acces BD/androidScript.js');
+const {crearSala, unirSala} = require('../M06 - Acces BD/mongo(Android).js');
 const { v4: uuidv4 } = require('uuid');
 const PORT = 3327;
 const ubicacioGrafics = path.join(__dirname, "..", "M10/grafics");
@@ -47,6 +48,8 @@ app.post("/usuarisLogin", async function (req, res) {
   const user = req.body;
   let usuariTrobat = false;
 
+  console.log(user);
+
   autoritzacio = { "autoritzacio": false };
 
   usuaris = await getUsuarisLogin(connection);
@@ -54,6 +57,8 @@ app.post("/usuarisLogin", async function (req, res) {
   console.log(usuaris)
   for (var i = 0; i < usuaris.length && usuariTrobat == false; i++) {
       if (usuaris[i].nomCognoms == user.nomCognoms) {
+        console.log(usuaris[i].nomCognoms)
+        console.log(user.nomCognoms)
           const match = await bcrypt.compare(user.contrasenya, usuaris[i].contrasenya);
           if (match) {
               usuariTrobat = true;
@@ -82,6 +87,45 @@ app.post("/registrarUsuari", async function (req, res) {
   res.json(autoritzacio)
 })
 
+
+//Creacio sales Joc
+
+// Manejar la solicitud POST para crear una sala
+app.post("/crearSala", async function (req, res) {  
+  try {
+      const salaData = {
+          idSala: req.body.idSala, 
+          creador: req.body.creadorSala,
+          estat: req.body.estatSala,
+          jugadores: req.body.jugadores,
+      };
+
+      
+      await crearSala(salaData);
+      res.status(200).send("Sala creada correctamente");
+  } catch (error) {
+      console.error("Error al crear la sala:", error);
+      res.status(500).send("Error al crear la sala");
+  }
+});
+
+// Manejar la solicitud POST para unirse a una sala
+app.post("/unirSala", async function (req, res) {
+  try {
+      const salaData = {
+          idSala: req.body.idSala, 
+          nomUsuari: req.body.nomUsuari
+      };
+      await unirSala(salaData);
+      res.status(200).send("Te has unido a la sala correctamente");
+  } catch (error) {
+      console.error("Error al unirse a la sala:", error);
+      res.status(500).send("Error al unirse a la sala");
+  }
+});
+
+
+//Sockets
 
 
 
