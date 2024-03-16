@@ -1,4 +1,4 @@
-module.exports = {crearSala, unirSala};
+module.exports = {crearSala, unirSala, getInfoSalaConcreta};
 
 const { MongoClient } = require('mongodb');
 const uri = "mongodb+srv://admin:Pedralbes24@atlascluster.uzqtbce.mongodb.net/?retryWrites=true&w=majority&appName=AtlasCluster";
@@ -47,6 +47,22 @@ async function unirSala(salaData) {
         }
     } catch (error) {
         console.error("Error al unirse a la sala:", error);
+        throw error;
+    } finally {
+        // Cerrar la conexión después de realizar la operación
+        await client.close();
+    }
+}
+
+async function getInfoSalaConcreta(idSala) {
+    try {
+        // Conectar a MongoDB
+        await client.connect();
+
+        const result = await client.db("grup3").collection("sala").findOne({ idSala: idSala });
+        return result;
+    } catch (error) {
+        console.error("Error al obtener la sala:", error);
         throw error;
     } finally {
         // Cerrar la conexión después de realizar la operación
