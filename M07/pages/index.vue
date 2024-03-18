@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3>Inici Canvi 2a ara</h3>
+        <h3>Inici Canvi 2a ara 2</h3>
     </div>
 </template>
 
