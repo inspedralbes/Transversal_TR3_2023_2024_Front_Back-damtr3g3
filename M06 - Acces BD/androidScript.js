@@ -5,15 +5,15 @@ async function registrarUsuariJoc(connection, usuari){
     try {
         // INSERT
         console.log(usuari)
-        const { nomCognoms, correu, contrasenya } = usuari;
+        const { nomUsuari, correu, contrasenya } = usuari;
         
         // Generar el salt y el hash de la contraseña
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(contrasenya, salt);
 
         const [result] = await connection.execute(
-            'INSERT INTO Usuaris (nomCognoms, correu, contrasenya, salt) VALUES (?,?,?,?)',
-            [nomCognoms, correu, hashedPassword, salt]
+            'INSERT INTO Usuaris (nomUsuari, correu, contrasenya, salt) VALUES (?,?,?,?)',
+            [nomUsuari, correu, hashedPassword, salt]
         );
 
         // Casos Error
@@ -30,7 +30,7 @@ async function registrarUsuariJoc(connection, usuari){
 
 async function getUsuarisLogin(connection) {
     try {
-        const [rows, fields] = await connection.execute('SELECT user_id, correu, contrasenya, salt FROM Usuaris');
+        const [rows, fields] = await connection.execute('SELECT user_id, nomUsuari, contrasenya, salt FROM Usuaris');
         const usuariosJSON = JSON.stringify(rows);
         return usuariosJSON;
     } catch (error) {
