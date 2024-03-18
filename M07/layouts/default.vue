@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="dark:bg-slate-900">
     <NavBar />
-    <div class="container mx-auto p-4">
+    <div class="container mx-auto p-4, dark:text-white">
       <slot />
     </div>
-    <Footer />
+    <Footer/>
   </div>
 </template>
 

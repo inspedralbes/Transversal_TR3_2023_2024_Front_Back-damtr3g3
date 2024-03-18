@@ -1,4 +1,6 @@
 <template>
+  <div class="container, h-screen dark:bg-slate-900">
+    <br>  
   <div class="flex justify-center">
     <section class="border rounded p-4 m-2">
       <h2 class="text-center">Procesos Iniciats</h2>
@@ -22,6 +24,7 @@
       </button>
     </section>
   </div>
+</div>
 </template>
 
 <script>
@@ -42,5 +45,11 @@ export default {
 <style scoped>
 h2 {
   font-size: 24px;
+}
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 </style>
