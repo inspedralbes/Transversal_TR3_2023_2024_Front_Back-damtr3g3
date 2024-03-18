@@ -48,19 +48,17 @@ app.post("/usuarisLogin", async function (req, res) {
   const user = req.body;
   let usuariTrobat = false;
 
-  console.log(user);
-
   autoritzacio = { "autoritzacio": false };
 
   usuaris = await getUsuarisLogin(connection);
   usuaris = JSON.parse(usuaris)
   console.log(usuaris)
   for (var i = 0; i < usuaris.length && usuariTrobat == false; i++) {
-      if (usuaris[i].nomCognoms == user.nomCognoms) {
+      if (usuaris[i].correu == user.correu) { 
           const match = await bcrypt.compare(user.contrasenya, usuaris[i].contrasenya);
           if (match) {
               usuariTrobat = true;
-              req.session.nombre = user.nomCognoms;
+              req.session.nombre = user.correu; 
               usuariLog = req.session.nombre
           }
       }
@@ -79,7 +77,7 @@ app.post("/registrarUsuari", async function (req, res) {
   auto = await registrarUsuariJoc(connection, nouUsuari);
   autoritzacio.autoritzacio = auto
   if (autoritzacio.autoritzacio) {
-      req.session.nombre = req.body.nomCognoms;
+      req.session.nombre = req.body.correu;
       usuariLog = req.session.nombre
   }
   res.json(autoritzacio)
