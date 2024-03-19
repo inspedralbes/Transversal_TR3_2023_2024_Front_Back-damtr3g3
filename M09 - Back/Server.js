@@ -55,11 +55,11 @@ app.post("/usuarisLogin", async function (req, res) {
   usuaris = JSON.parse(usuaris)
   console.log(usuaris)
   for (var i = 0; i < usuaris.length && usuariTrobat == false; i++) {
-      if (usuaris[i].correu == user.correu) { 
+      if (usuaris[i].nomUsuari == user.nomUsuari) { 
           const match = await bcrypt.compare(user.contrasenya, usuaris[i].contrasenya);
           if (match) {
               usuariTrobat = true;
-              req.session.nombre = user.correu; 
+              req.session.nombre = user.nomUsuari; 
               usuariLog = req.session.nombre
           }
       }
@@ -70,7 +70,7 @@ app.post("/usuarisLogin", async function (req, res) {
 
 app.post("/registrarUsuari", async function (req, res) {
   nouUsuari = {
-      "nomCognoms": req.body.nomCognoms,
+      "nomUsuari": req.body.nomUsuari,
       "correu": req.body.correu,
       "contrasenya": req.body.contrasenya,  
   }
