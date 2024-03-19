@@ -12,6 +12,7 @@ const { spawn } = require('child_process');
 var session = require('express-session')
 const {getUsuarisLogin, registrarUsuariJoc} = require('../M06 - Acces BD/androidScript.js');
 const {crearSala, unirSala, getInfoSalaConcreta} = require('../M06 - Acces BD/mongo(Android).js');
+const socketHandler = require('./socketHandler.js');
 const { v4: uuidv4 } = require('uuid');
 const PORT = 3327;
 const ubicacioGrafics = path.join(__dirname, "..", "M10/grafics");
@@ -95,8 +96,6 @@ app.post("/crearSala", async function (req, res) {
           estat: req.body.estatSala,
           jugadores: req.body.jugadores,
       };
-
-      
       await crearSala(salaData);
       res.status(200).send("Sala creada correctamente");
   } catch (error) {
@@ -141,6 +140,15 @@ io.on('connection', (socket) => {
       console.error("Error al obtener la información de la sala:", error);
     }
   });
+
+  socket.on('join room', (idSala) => {
+    socket.join(idSala);
+    console.log("Llista d'usuaris a la sala", io.sockets.adapter.rooms.get(idSala));
+  });
+
+  socketHandler.startGame(socket, io);
+  socketHandler.listenKeys(socket, io);
+  socketHandler.checkPositions(socket, io);
 
 });
 
