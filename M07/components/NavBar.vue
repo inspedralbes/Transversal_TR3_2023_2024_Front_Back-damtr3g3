@@ -6,7 +6,8 @@
           <li><NuxtLink to="/">Inici</NuxtLink></li>
           <li><NuxtLink to="/processos">Processos</NuxtLink></li>
           <li><NuxtLink to="/sprites">Sprites</NuxtLink></li>
-          <li><NuxtLink to="/stats">Stats</NuxtLink></li>
+          <li><NuxtLink to="/broadcast">Broadcast</NuxtLink></li>
+          <li><NuxtLink to="/settings">Settings</NuxtLink></li>
         </ul>
       </nav>
     </header>

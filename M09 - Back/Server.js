@@ -1,6 +1,7 @@
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcrypt');
 const express = require('express');
+const fetch = require('node-fetch');
 const app = express();
 const fs = require('fs');
 const path = require('path');
@@ -10,6 +11,7 @@ const socketIO = require('socket.io');
 const http = require('http');
 const { spawn } = require('child_process');
 var session = require('express-session')
+const xmlrpc = require('xmlrpc');
 const {getUsuarisLogin, registrarUsuariJoc} = require('../M06 - Acces BD/androidScript.js');
 const {crearSala, unirSala, getInfoSalaConcreta} = require('../M06 - Acces BD/mongo(Android).js');
 const { v4: uuidv4 } = require('uuid');
@@ -43,6 +45,54 @@ app.use(session({
 }))
 app.use(bodyParser.urlencoded({ extended: false }))
 app.use(bodyParser.json());
+
+
+
+//--------------------Nuxt--------------------
+
+
+app.get('/api/products', async (req, res) => {
+  const common = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/common');
+  common.methodCall('authenticate', ['grup3', 'a22jonmarqui@inspedralbes.cat', 'Pedralbes24-', {}], function (error, uid) {
+    if (error) {
+      console.error('Error:', error);
+      res.status(500).json({ message: 'An error occurred during authentication' });
+    } else {
+      const models = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/object');
+      models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'product.product', 'search_read', [[]]], function (error, products) {
+        if (error) {
+          console.error('Error:', error);
+          res.status(500).json({ message: 'An error occurred' });
+        } else {
+          // Convierte las imágenes a URLs de datos y obtén la cantidad de pedidos para cada producto
+          const promises = products.map(product => {
+            return new Promise((resolve, reject) => {
+              if (product.image_1920) {
+                product.image_1920 = `data:image/png;base64,${product.image_1920}`;
+              }
+              models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'sale.order.line', 'search_count', [[['product_id', '=', product.id]]]], function (error, orderCount) {
+                if (error) {
+                  console.error('Error:', error);
+                  reject(error);
+                } else {
+                  product.orderCount = orderCount;
+                  resolve();
+                }
+              });
+            });
+          });
+          Promise.all(promises)
+            .then(() => res.json(products))
+            .catch(error => res.status(500).json({ message: 'An error occurred' }));
+        }
+      });
+    }
+  });
+});
+
+
+
+
 
 app.post("/usuarisLogin", async function (req, res) {
   const user = req.body;
