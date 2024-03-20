@@ -90,10 +90,19 @@ app.get('/api/products', async (req, res) => {
     }
   });
 });
+app.post('/sendBroadcast', (req, res) => {
+  // Usa el título y el mensaje de la solicitud POST
+  const { title, message } = req.body;
+  io.emit('broadcast', { title, message });
+
+  // Imprime un mensaje más descriptivo
+  console.log(`Emitted broadcast message:\nTitle: ${title}\nMessage: ${message}`); 
+
+  res.send('Successfully sent message');
+});
 
 
-
-
+//----------------Log IN i Registre---------------- 
 
 app.post("/usuarisLogin", async function (req, res) {
   const user = req.body;
