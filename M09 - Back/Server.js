@@ -65,31 +65,55 @@ app.get('/api/products', async (req, res) => {
           console.error('Error:', error);
           res.status(500).json({ message: 'An error occurred' });
         } else {
-          // Convierte las imágenes a URLs de datos y obtén la cantidad de pedidos para cada producto
-          const promises = products.map(product => {
-            return new Promise((resolve, reject) => {
-              if (product.image_1920) {
-                product.image_1920 = `data:image/png;base64,${product.image_1920}`;
-              }
-              models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'sale.order.line', 'search_count', [[['product_id', '=', product.id]]]], function (error, orderCount) {
-                if (error) {
-                  console.error('Error:', error);
-                  reject(error);
-                } else {
-                  product.orderCount = orderCount;
-                  resolve();
-                }
-              });
-            });
+          // Convierte las imágenes a URLs de datos
+          products.forEach(product => {
+            if (product.image_1920) {
+              product.image_1920 = `data:image/png;base64,${product.image_1920}`;
+            }
           });
-          Promise.all(promises)
-            .then(() => res.json(products))
-            .catch(error => res.status(500).json({ message: 'An error occurred' }));
+          res.json(products);
         }
       });
     }
   });
 });
+app.post('/api/products', async (req, res) => {
+  const common = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/common');
+  common.methodCall('authenticate', ['grup3', 'a22jonmarqui@inspedralbes.cat', 'Pedralbes24-', {}], function (error, uid) {
+    if (error) {
+      console.error('Error:', error);
+      res.status(500).json({ message: 'An error occurred during authentication' });
+    } else {
+      const models = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/object');
+
+      // Extrae la imagen codificada en base64 de la solicitud
+      const base64Image = req.body.image_1920.split(';base64,').pop();
+
+      models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'product.product', 'create', [{
+        'name': req.body.name,
+        'list_price': req.body.list_price,
+        'standard_price': req.body.standard_price,
+        'type': req.body.type,
+        'image_1920': base64Image,  // Usa la imagen codificada en base64
+      }]], function (error, product_id) {
+        if (error) {
+          console.error('Error:', error);
+          res.status(500).json({ success: false, message: 'An error occurred' });
+    } else {
+      res.json({ success: true, message: 'Product created successfully!', product_id: product_id });
+        }
+      });
+    }
+  });
+});
+
+function base64_encode(file) {
+  let bitmap = fs.readFileSync(file);
+  return Buffer.from(bitmap).toString('base64');
+}
+
+
+
 app.post('/sendBroadcast', (req, res) => {
   // Usa el título y el mensaje de la solicitud POST
   const { title, message } = req.body;
@@ -211,28 +235,13 @@ io.on('connection', (socket) => {
 
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 httpServer.listen(PORT, () => {
-    console.log("Server => " + PORT);
-  });
+  console.log("Server => " + PORT);
+});
 var history = require('connect-history-api-fallback')
 const staticFileMiddleware = express.static('../dist');
 app.use(staticFileMiddleware);
 app.use(history({
-    disableDotRule: true,
-    verbose: true
+  disableDotRule: true,
+  verbose: true
 }));
-app.use(staticFileMiddleware);
-  

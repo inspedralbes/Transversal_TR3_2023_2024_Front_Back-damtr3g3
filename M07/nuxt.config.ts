@@ -10,5 +10,6 @@ export default defineNuxtConfig({
     "@nuxtjs/google-fonts",
     "@nuxtjs/tailwindcss",
     "@nuxtjs/color-mode",
+    "vuetify-nuxt-module",
   ],
 });
