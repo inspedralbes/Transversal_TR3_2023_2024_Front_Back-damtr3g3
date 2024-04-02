@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-module.exports = {registrarUsuariJoc, getUsuarisLogin};
+module.exports = {registrarUsuariJoc, getUsuarisLogin, updateScore};
 
 async function registrarUsuariJoc(connection, usuari){
     try {
@@ -35,6 +35,23 @@ async function getUsuarisLogin(connection) {
         return usuariosJSON;
     } catch (error) {
         console.error('Error al obtener usuarios:', error.message);
+        throw error;
+    }
+}
+
+async function updateScore(connection, score, username){
+    try{
+        const [result] = await connection.execute(
+            'UPDATE Usuaris SET diners = diners + ? WHERE nomUsuari = ?',
+            [score, username]
+        );
+        if (result.affectedRows === 1) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al actualizar score:', error.message);
         throw error;
     }
 }
