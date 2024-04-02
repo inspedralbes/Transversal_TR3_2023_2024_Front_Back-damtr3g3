@@ -12,7 +12,7 @@ async function registrarUsuariJoc(connection, usuari){
         const hashedPassword = await bcrypt.hash(contrasenya, salt);
 
         const [result] = await connection.execute(
-            'INSERT INTO Usuaris (nomUsuari, correu, contrasenya, salt) VALUES (?,?,?,?)',
+            'INSERT INTO Usuaris (nomUsuari, correu, contrasenya, salt, diners) VALUES (?,?,?,?, 0)',
             [nomUsuari, correu, hashedPassword, salt]
         );
 
