@@ -27,13 +27,14 @@
           <h3>{{ product.name }}</h3>
           <img v-if="product.image_1920" :src="product.image_1920" alt="Imagen del producto" />
           <p>Precio de venta: {{ product.list_price }}</p>
+          <v-btn color="red darken-1" text @click="deleteProduct(product.id)">Eliminar</v-btn>
         </div>
       </v-col>
     </v-row>
   </div>
 </template>
 <script>
-import { getProducts, createProduct } from '../services/communicationsManager';
+import { getProducts, createProduct, deleteProduct } from '../services/communicationsManager';
 
 export default {
   data() {
@@ -94,6 +95,19 @@ export default {
     this.dialog = false;
     this.products = await getProducts();  // Actualizar la lista de productos
   },
+  async deleteProduct(id) {
+  // Imprime el ID del producto en la consola
+  console.log(`Deleting product with ID: ${id}`);
+
+  const response = await deleteProduct(id);
+  if (response && response.success) {
+    alert('Producto eliminado correctamente!');
+    this.products = await getProducts();  // Actualizar la lista de productos
+  } else {
+    alert('Hubo un problema al eliminar el producto.');
+  }
+}
+
 },
 
 };
