@@ -13,28 +13,41 @@ async function startGame(socket, io){
     });
 }
 
-async function listenKeys(socket, io){
-    socket.on('key', async(data) => {
-        console.log('Key emit rebut', data);
+async function listenKeyUp(socket, io){
+    socket.on('keyUp', async(data) => {
+        //console.log('KeyDown emit rebut', data);
         let parsedData = JSON.parse(data);
         try {
-            io.to(parsedData.salaId).emit('key_event', parsedData);
+            io.to(parsedData.salaId).emit('key_up', parsedData);
         } catch (error) {
             console.error("Error al obtener la información de la sala:", error);
         }
     });
+}
+
+async function listenKeyDown(socket, io){
+    socket.on('keyDown', async(data) => {
+        //console.log('KeyUp emit rebut', data);
+        let parsedData = JSON.parse(data);
+        try {
+            io.to(parsedData.salaId).emit('key_down', parsedData);
+        } catch (error) {
+            console.error("Error al obtener la información de la sala:", error);
+        }
+    });
+
 }
 
 async function checkPositions(socket, io){
     socket.on('user_position', async(data) => {
-        console.log('User Position emit rebut', data);
+        //console.log('User Position emit rebut', data);
         try {
             io.to(data.salaId).emit('update_positions', data);
-            console.log('User Position enviat a la sala', data.salaId);
+            //console.log('User Position enviat a la sala', data.salaId);
         } catch (error) {
             console.error("Error al obtener la información de la sala:", error);
         }
     });
 }
 
-module.exports = {startGame, listenKeys, checkPositions};
+module.exports = {startGame, listenKeyUp, listenKeyDown, checkPositions};
