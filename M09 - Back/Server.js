@@ -206,7 +206,8 @@ io.on('connection', (socket) => {
   });
 
   socketHandler.startGame(socket, io);
-  socketHandler.listenKeys(socket, io);
+  socketHandler.listenKeyDown(socket, io);
+  socketHandler.listenKeyUp(socket, io);
   socketHandler.checkPositions(socket, io);
 
 });
