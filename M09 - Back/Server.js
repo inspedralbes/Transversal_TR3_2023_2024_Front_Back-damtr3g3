@@ -348,6 +348,5 @@ async function crearClientesEnOdooDesdeBD() {
   }
 }
 
-
 // Llama a la función principal para iniciar el proceso de creación de clientes en Odoo desde la base de datos
 crearClientesEnOdooDesdeBD();
