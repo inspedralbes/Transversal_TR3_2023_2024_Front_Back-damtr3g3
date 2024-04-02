@@ -1,4 +1,3 @@
-
 const BASE_URL = "http://localhost:3327";
 
 export async function getProducts() {
@@ -24,6 +23,13 @@ export async function createProduct(product) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(product),
+  });
+  const data = await response.json();
+  return data;
+}
+export async function deleteProduct(id) {
+  const response = await fetch(BASE_URL + '/api/products/' + id, {
+    method: 'DELETE',
   });
   const data = await response.json();
   return data;

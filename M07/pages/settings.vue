@@ -2,17 +2,13 @@
   <div class="container">
     <h2>Configuración</h2>
     <div class="input-container">
-      <label for="velocidad-tronco">Velocidad del tronco:</label>
-      <input type="range" id="velocidad-tronco" min="0" max="100" step="1" @input="updateVelocidadTronco">
-      <span id="valor-velocidad-tronco">{{ velocidadTronco }}</span>
+      <label for="aceleracion-tronco">Aceleración del tronco:</label>
+      <input type="range" id="aceleracion-tronco" min="0" max="100" step="1" @input="updateAceleracionTronco">
+      <span id="valor-aceleracion-tronco">{{ aceleracionTronco }}</span>
     </div>
     <div class="input-container">
-      <label for="empuje-tronco">Empuje del tronco:</label>
-      <input type="number" id="empuje-tronco">
-    </div>
-    <div class="input-container">
-      <label for="salto">Salto:</label>
-      <input type="number" id="salto">
+      <label for="dano-personaje">Daño recibido del personaje:</label>
+      <input type="number" id="dano-personaje">
     </div>
     <div class="input-container">
       <label for="velocidad-personaje">Velocidad del personaje:</label>
@@ -26,12 +22,12 @@
 export default {
   data() {
     return {
-      velocidadTronco: 0
+      aceleracionTronco: 0
     };
   },
   methods: {
-    updateVelocidadTronco(event) {
-      this.velocidadTronco = event.target.value;
+    updateAceleracionTronco(event) {
+      this.aceleracionTronco = event.target.value;
     }
   }
 };
