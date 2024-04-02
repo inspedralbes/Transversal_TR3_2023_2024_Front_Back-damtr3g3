@@ -19,10 +19,12 @@ products = models.execute_kw(db, uid, password,
     {'fields': ['name', 'default_code']})
 
 # Para cada producto, contar el número de pedidos de venta que lo incluyen
+# Para cada producto, contar el número de pedidos de venta que lo incluyen
 for product in products:
     order_count = models.execute_kw(db, uid, password,
         'sale.order.line', 'search_count',
         [[['product_id', '=', product['id']]]])
     print("Producto:", product['name'])
+    print("ID del producto:", product['id'])  # Print product ID
     print("Código por defecto:", product['default_code'])
     print("Número de pedidos:", order_count)
