@@ -12,7 +12,7 @@ const http = require('http');
 const { spawn } = require('child_process');
 var session = require('express-session')
 const xmlrpc = require('xmlrpc');
-const {getUsuarisLogin, registrarUsuariJoc} = require('../M06 - Acces BD/androidScript.js');
+const {getUsuarisLogin, registrarUsuariJoc, updateScore} = require('../M06 - Acces BD/androidScript.js');
 const {crearSala, unirSala, getInfoSalaConcreta} = require('../M06 - Acces BD/mongo(Android).js');
 const socketHandler = require('./socketHandler.js');
 const { v4: uuidv4 } = require('uuid');
@@ -199,6 +199,19 @@ app.post("/unirSala", async function (req, res) {
   } catch (error) {
       console.error("Error al unirse a la sala:", error);
       res.status(500).send("Error al unirse a la sala");
+  }
+});
+
+//Jugador puntuar
+app.post("/score", async function (req, res) {
+  try{
+    const score = req.body.score;
+    const nomUsuari = req.body.username;
+    await updateScore(connection, score, nomUsuari);
+    res.status(200).send("Puntuación actualizada correctamente");
+  } catch (error) {
+    console.error("Error al actualizar la puntuación:", error);
+    res.status(500).send("Error al actualizar la puntuación");
   }
 });
 
