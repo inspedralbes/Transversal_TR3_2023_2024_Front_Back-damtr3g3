@@ -172,7 +172,7 @@ app.post("/registrarUsuari", async function (req, res) {
   nouUsuari = {
       "nomUsuari": req.body.nomUsuari,
       "correu": req.body.correu,
-      "contrasenya": req.body.contrasenya,  
+      "contrasenya": req.body.contrasenya,
   }
   autoritzacio = { "autoritzacio": false };
   auto = await registrarUsuariJoc(connection, nouUsuari);
