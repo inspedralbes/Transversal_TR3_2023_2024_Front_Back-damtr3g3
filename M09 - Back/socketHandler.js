@@ -50,4 +50,43 @@ async function checkPositions(socket, io){
     });
 }
 
-module.exports = {startGame, listenKeyUp, listenKeyDown, checkPositions};
+async function checkHitByLog(socket, io){
+    socket.on('hitByLog', async(data) => {
+        console.log('Hit by log emit rebut', data);
+        let parsedData = JSON.parse(data);
+        try {
+            io.to(parsedData.salaId).emit('hit_by_log', parsedData);
+            console.log('Hit by log enviat a la sala', parsedData.salaId);
+        } catch (error) {
+            console.error("Error al obtener la información de la sala:", error);
+        }
+    });
+}
+
+async function checkHitByPlayer(socket, io){
+    socket.on('hitByPlayer', async(data) => {
+        console.log('Hit by player emit rebut', data);
+        let parsedData = JSON.parse(data);
+        try {
+            io.to(parsedData.salaId).emit('hit_by_player', parsedData);
+            console.log('Hit by player enviat a la sala', parsedData.salaId);
+        } catch (error) {
+            console.error("Error al obtener la información de la sala:", error);
+        }
+    });
+}
+
+async function checkPlayerDead(socket, io){
+    socket.on('playerDead', async(data) => {
+        console.log('Player dead emit rebut', data);
+        let parsedData = JSON.parse(data);
+        try {
+            io.to(parsedData.salaId).emit('player_dead', parsedData);
+            console.log('Player dead enviat a la sala', parsedData.salaId);
+        } catch (error) {
+            console.error("Error al obtener la información de la sala:", error);
+        }
+    });
+}
+
+module.exports = {startGame, listenKeyUp, listenKeyDown, checkPositions, checkHitByLog, checkHitByPlayer, checkPlayerDead};
