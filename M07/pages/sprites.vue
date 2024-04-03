@@ -85,7 +85,7 @@ export default {
         name: '',
         list_price: 0,
         standard_price: 0,
-        type: 'product',
+        type: 'service',
         image_1920: null,
       };
     } else {
