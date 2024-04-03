@@ -263,6 +263,9 @@ io.on('connection', (socket) => {
   socketHandler.listenKeyDown(socket, io);
   socketHandler.listenKeyUp(socket, io);
   socketHandler.checkPositions(socket, io);
+  socketHandler.checkHitByLog(socket, io);
+  socketHandler.checkHitByPlayer(socket, io);
+  socketHandler.checkPlayerDead(socket, io);
 
 });
 
