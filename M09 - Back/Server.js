@@ -12,7 +12,7 @@ const http = require('http');
 const { spawn } = require('child_process');
 var session = require('express-session')
 const xmlrpc = require('xmlrpc');
-const {getUsuarisLogin, registrarUsuariJoc} = require('../M06 - Acces BD/androidScript.js');
+const {getUsuarisLogin, registrarUsuariJoc, updateScore} = require('../M06 - Acces BD/androidScript.js');
 const {crearSala, unirSala, getInfoSalaConcreta} = require('../M06 - Acces BD/mongo(Android).js');
 const socketHandler = require('./socketHandler.js');
 const { v4: uuidv4 } = require('uuid');
@@ -172,17 +172,19 @@ app.post("/registrarUsuari", async function (req, res) {
   nouUsuari = {
       "nomUsuari": req.body.nomUsuari,
       "correu": req.body.correu,
-      "contrasenya": req.body.contrasenya,
+      "contrasenya": req.body.contrasenya,  
   }
   autoritzacio = { "autoritzacio": false };
   auto = await registrarUsuariJoc(connection, nouUsuari);
   autoritzacio.autoritzacio = auto
   if (autoritzacio.autoritzacio) {
       req.session.nombre = req.body.correu;
-      usuariLog = req.session.nombre
+      usuariLog = req.session.nombre;
+      // Llama a la función para crear clientes en Odoo después de registrar un usuario
+      await crearClientesEnOdooDesdeBD();
   }
-  res.json(autoritzacio)
-})
+  res.json(autoritzacio);
+});
 
 
 //Creacio sales Joc
@@ -219,6 +221,19 @@ app.post("/unirSala", async function (req, res) {
   }
 });
 
+//Jugador puntuar
+app.post("/score", async function (req, res) {
+  try{
+    const score = req.body.score;
+    const nomUsuari = req.body.username;
+    await updateScore(connection, score, nomUsuari);
+    res.status(200).send("Puntuación actualizada correctamente");
+  } catch (error) {
+    console.error("Error al actualizar la puntuación:", error);
+    res.status(500).send("Error al actualizar la puntuación");
+  }
+});
+
 
 //Sockets
 
@@ -250,6 +265,9 @@ io.on('connection', (socket) => {
   socketHandler.listenKeyDown(socket, io);
   socketHandler.listenKeyUp(socket, io);
   socketHandler.checkPositions(socket, io);
+  socketHandler.checkHitByLog(socket, io);
+  socketHandler.checkHitByPlayer(socket, io);
+  socketHandler.checkPlayerDead(socket, io);
 
 });
 
@@ -263,3 +281,75 @@ app.use(history({
   disableDotRule: true,
   verbose: true
 }));
+
+// Función para crear un cliente en Odoo
+async function crearClienteEnOdoo(usuario) {
+  return new Promise((resolve, reject) => {
+    const common = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/common');
+    common.methodCall('authenticate', ['grup3', 'a22jonmarqui@inspedralbes.cat', 'Pedralbes24-', {}], function (error, uid) {
+      if (error) {
+        console.error('Error during authentication:', error);
+        reject(error);
+      } else {
+        const models = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/object');
+        const base64Image = ''; // Aquí puedes poner la lógica para obtener la imagen codificada en base64
+
+        // Verifica si el cliente ya existe en Odoo antes de crearlo
+        models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'res.partner', 'search', [[['name', '=', usuario.nombre]]]], function (error, existentes) {
+          if (error) {
+            console.error('Error searching for existing client:', error);
+            reject(error);
+          } else if (existentes.length > 0) {
+            // console.log(`Cliente ${usuario.nombre} ya existe en Odoo.`);
+            resolve(existentes[0]); // Devuelve el ID del cliente existente
+          } else {
+            // El cliente no existe, procede a crearlo
+            models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'res.partner', 'create', [{
+              'name': usuario.nombre,
+              'email': usuario.correo, // Agrega el correo electrónico como información adicional del cliente
+              // Otros campos del cliente, si es necesario
+            }]], function (error, partner_id) {
+              if (error) {
+                console.error('Error creating client:', error);
+                reject(error);
+              } else {
+                resolve(partner_id);
+              }
+            });
+          }
+        });
+      }
+    });
+  });
+}
+
+
+// Función para obtener usuarios de la base de datos
+async function obtenerUsuariosDeBD() {
+  // Aquí debes agregar lógica para obtener los usuarios de tu base de datos
+  // Por ejemplo, una consulta a tu base de datos MySQL
+
+  // Ejemplo de consulta a MySQL usando la conexión `connection`
+  const [rows, fields] = await connection.execute('SELECT nomUsuari, correu FROM Usuaris');
+  return rows.map(row => ({ nombre: row.nomUsuari, correo: row.correu }));
+}
+
+// Función principal para crear clientes en Odoo desde usuarios en la base de datos
+async function crearClientesEnOdooDesdeBD() {
+  try {
+    // Obtener usuarios de la base de datos
+    const usuarios = await obtenerUsuariosDeBD();
+    
+    // Crear un cliente en Odoo para cada usuario
+    for (const usuario of usuarios) {
+      await crearClienteEnOdoo(usuario);
+    }
+    
+    console.log('Proceso completado. Todos los clientes creados correctamente.');
+  } catch (error) {
+    console.error('Error al crear clientes en Odoo desde la base de datos:', error);
+  }
+}
+
+// Llama a la función principal para iniciar el proceso de creación de clientes en Odoo desde la base de datos
+crearClientesEnOdooDesdeBD();
