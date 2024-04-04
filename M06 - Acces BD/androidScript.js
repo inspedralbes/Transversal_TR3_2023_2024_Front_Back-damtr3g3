@@ -7,6 +7,17 @@ async function registrarUsuariJoc(connection, usuari){
         console.log(usuari)
         const { nomUsuari, correu, contrasenya } = usuari;
         
+        // Comprobar si el nombre de usuario ya existe
+        const [usuarios] = await connection.execute(
+            'SELECT * FROM Usuaris WHERE nomUsuari = ?',
+            [nomUsuari]
+        );
+
+        if (usuarios.length > 0) {
+            console.error('Error: El nombre de usuario ya existe.');
+            return false;
+        }
+        
         // Generar el salt y el hash de la contraseña
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(contrasenya, salt);
