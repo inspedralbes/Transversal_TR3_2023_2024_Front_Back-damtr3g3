@@ -12,7 +12,8 @@
   "dependencies": {
     "nuxt": "^3.10.3",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
     "@nuxtjs/color-mode": "^3.3.2",

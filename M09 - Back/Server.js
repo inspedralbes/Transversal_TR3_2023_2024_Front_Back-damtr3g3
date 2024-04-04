@@ -12,6 +12,7 @@ const http = require('http');
 const { spawn } = require('child_process');
 var session = require('express-session')
 const xmlrpc = require('xmlrpc');
+const { Client } = require('ssh2');
 const {getUsuarisLogin, registrarUsuariJoc, updateScore} = require('../M06 - Acces BD/androidScript.js');
 const {crearSala, unirSala, getInfoSalaConcreta} = require('../M06 - Acces BD/mongo(Android).js');
 const socketHandler = require('./socketHandler.js');
@@ -130,6 +131,54 @@ app.delete('/api/products/:id', async (req, res) => {
   });
 });
 
+
+app.post('/api/stop', (req, res) => {
+  const conn = new Client();
+  conn.on('ready', () => {
+    console.log('Client :: ready');
+    conn.exec('cd /home/ubuntu/dockers; sudo docker-compose stop', (err, stream) => {
+      if (err) throw err;
+      stream.on('close', (code, signal) => {
+        console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);
+        conn.end();
+        res.send('Shutting down container');
+      }).on('data', (data) => {
+        console.log('STDOUT: ' + data);
+      }).stderr.on('data', (data) => {
+        console.log('STDERR: ' + data);
+      });
+    });
+  }).connect({
+    host: '141.147.8.58',
+    port: 22,
+    username: 'ubuntu',
+    privateKey: require('fs').readFileSync('C:\\Users\\alum-01\\Desktop\\keys\\ssh-key-2024-03-15.key')
+  });
+});
+
+app.post('/api/start', (req, res) => {
+  const conn = new Client();
+  conn.on('ready', () => {
+    console.log('Client :: ready');
+    conn.exec('cd /home/ubuntu/dockers; sudo docker-compose start', (err, stream) => {
+      if (err) throw err;
+      stream.on('close', (code, signal) => {
+        console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);
+        conn.end();
+        res.send('Starting container');
+      }).on('data', (data) => {
+        console.log('STDOUT: ' + data);
+      }).stderr.on('data', (data) => {
+        console.log('STDERR: ' + data);
+      });
+    });
+  }).connect({
+    host: '141.147.8.58',
+    port: 22,
+    username: 'ubuntu',
+    privateKey: require('fs').readFileSync('C:\\Users\\alum-01\\Desktop\\keys\\ssh-key-2024-03-15.key')
+  });
+});
 
 app.post('/sendBroadcast', (req, res) => {
   // Usa el título y el mensaje de la solicitud POST

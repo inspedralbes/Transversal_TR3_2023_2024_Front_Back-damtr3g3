@@ -4,7 +4,7 @@
       <h2 class="text-center">Procesos Iniciats</h2>
       <button 
         v-if="!processRunning" 
-        @click="toggleProcess" 
+        @click="startDockerContainer" 
         class="px-4 py-2 mt-4 rounded text-white bg-green-500 w-full"
       >
         Iniciar process
@@ -15,7 +15,7 @@
       <h2 class="text-center">Procesos Aturats</h2>
       <button 
         v-if="processRunning" 
-        @click="toggleProcess" 
+        @click="stopDockerContainer" 
         class="px-4 py-2 mt-4 rounded text-white bg-red-500 w-full"
       >
         Aturar process
@@ -25,6 +25,8 @@
 </template>
 
 <script>
+import { startContainer, stopContainer } from '../services/communicationsManager';
+
 export default {
   data() {
     return {
@@ -32,8 +34,19 @@ export default {
     };
   },
   methods: {
-    toggleProcess() {
-      this.processRunning = !this.processRunning;
+    async startDockerContainer() {
+      const response = await startContainer();
+      console.log(response);
+      if (response === 'Starting container') {
+        this.processRunning = true;
+      }
+    },
+    async stopDockerContainer() {
+      const response = await stopContainer();
+      console.log(response);
+      if (response === 'Shutting down container') {
+        this.processRunning = false;
+      }
     }
   }
 };

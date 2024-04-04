@@ -34,3 +34,13 @@ export async function deleteProduct(id) {
   const data = await response.json();
   return data;
 }
+export async function stopContainer() {
+  const response = await fetch(BASE_URL + '/api/stop', { method: 'POST' });
+  const data = await response.text();
+  return data;
+}
+export async function startContainer() {
+  const response = await fetch(BASE_URL + '/api/start', { method: 'POST' });
+  const data = await response.text();
+  return data;
+}
