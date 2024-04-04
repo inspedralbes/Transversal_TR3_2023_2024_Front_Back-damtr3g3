@@ -317,6 +317,7 @@ io.on('connection', (socket) => {
   socketHandler.checkHitByLog(socket, io);
   socketHandler.checkHitByPlayer(socket, io);
   socketHandler.checkPlayerDead(socket, io);
+  socketHandler.playAgain(socket, io);
 
 });
 

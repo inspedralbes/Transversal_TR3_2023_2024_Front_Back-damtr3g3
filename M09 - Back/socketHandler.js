@@ -13,6 +13,19 @@ async function startGame(socket, io){
     });
 }
 
+async function playAgain(socket, io){
+    socket.on('playAgain', async (salaInfo) => {
+        console.log('Play Again emit rebut', salaInfo);
+        try {
+            io.to(salaInfo.idSala).emit('PLAY_AGAIN', salaInfo.idSala);
+            console.log('Play again a la sala', salaInfo.idSala);
+            console.log("Llista d'usuaris a la sala", io.sockets.adapter.rooms.get(salaInfo.idSala));
+        } catch (error) {
+            console.error("Error al obtener la información de la sala:", error);
+        }
+    });
+}
+
 async function listenKeyUp(socket, io){
     socket.on('keyUp', async(data) => {
         //console.log('KeyDown emit rebut', data);
@@ -89,4 +102,4 @@ async function checkPlayerDead(socket, io){
     });
 }
 
-module.exports = {startGame, listenKeyUp, listenKeyDown, checkPositions, checkHitByLog, checkHitByPlayer, checkPlayerDead};
+module.exports = {startGame, listenKeyUp, listenKeyDown, checkPositions, checkHitByLog, checkHitByPlayer, checkPlayerDead, playAgain};
