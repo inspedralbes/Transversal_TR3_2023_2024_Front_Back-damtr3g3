@@ -24,25 +24,16 @@ export default {
     };
   },
   methods: {
-    async createProduct() {
-    const response = await createProduct(this.newProduct);
-    if (response) {
-      alert('Producto creado correctamente!');
-      this.newProduct = {
-        name: '',
-        list_price: 0,
-        standard_price: 0,
-        type: 'product',
-        image_1920: null,
-      };
-    } else {
-      alert('Hubo un problema al crear el producto.');
+    async sendBroadcast() {
+      const response = await sendBroadcast(this.title, this.message);
+      console.log(response);
+      if (response === 'Successfully sent message') {
+        alert('Mensaje enviado correctamente');
+        this.title = '';
+        this.message = '';
+      }
     }
-    console.log(response);
-    this.dialog = false;
-    this.products = await getProducts();  // Actualizar la lista de productos
-  },
-},
+  }
 };
 </script>
 

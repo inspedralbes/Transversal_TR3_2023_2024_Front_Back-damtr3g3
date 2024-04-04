@@ -31,6 +31,14 @@ async function unirSala(salaData) {
         const idSala = salaData.idSala;
         const nomUsuari = salaData.nomUsuari; 
 
+        // Comprobar si la sala existe
+        const sala = await client.db("grup3").collection("sala").findOne({ idSala: idSala });
+
+        if (!sala) {
+            console.log(`La sala ${idSala} no existe`);
+            throw new Error("La sala no existe");
+        }
+
         console.log(`Uniendo usuario ${nomUsuari} a la sala ${idSala}`);
 
         // Realizar la actualización en la base de datos para agregar el usuario a la sala
@@ -53,6 +61,7 @@ async function unirSala(salaData) {
         await client.close();
     }
 }
+
 
 async function getInfoSalaConcreta(idSala) {
     try {
