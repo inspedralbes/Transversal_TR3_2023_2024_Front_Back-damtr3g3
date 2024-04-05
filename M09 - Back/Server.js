@@ -317,6 +317,18 @@ io.on('connection', (socket) => {
     }
   });
 
+  socket.on('reqRanking', async () => {
+    console.log('reqRanking emit rebut');
+    try {
+      const Ranking = await getRanking();
+      console.log('Ranking:', Ranking); 
+      socket.emit('actualitzarRanking', Ranking);
+      
+    } catch (error) {
+      console.error("Error al obtener la información de la sala:", error);
+    }
+  });
+
   socket.on('join room', (idSala) => {
     socket.join(idSala);
     console.log("Llista d'usuaris a la sala", io.sockets.adapter.rooms.get(idSala));
