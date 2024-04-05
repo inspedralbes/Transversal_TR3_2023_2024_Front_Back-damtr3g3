@@ -1,4 +1,4 @@
-module.exports = {crearSala, unirSala, getInfoSalaConcreta, actualitzarRanking};
+module.exports = {crearSala, unirSala, getInfoSalaConcreta, actualitzarRanking, obtenerRankingOrdenat};
 
 const { MongoClient } = require('mongodb');
 const uri = "mongodb://admin:Pedralbes24@ac-tfqzwz8-shard-00-00.uzqtbce.mongodb.net:27017,ac-tfqzwz8-shard-00-01.uzqtbce.mongodb.net:27017,ac-tfqzwz8-shard-00-02.uzqtbce.mongodb.net:27017/?ssl=true&replicaSet=atlas-2n9o7w-shard-0&authSource=admin&retryWrites=true&w=majority&appName=AtlasCluster";
@@ -108,6 +108,24 @@ async function actualitzarRanking(rankingData) {
         return result ? (result.upsertedId || result.insertedId) : existingDoc._id;
     } catch (error) {
         console.error("Error al actualitzar el ranking:", error);
+        throw error;
+    } finally {
+        // Cerrar la conexión después de realizar la operación
+        await client.close();
+    }
+}
+async function obtenerRankingOrdenat() {
+    try {
+        // Conectar a MongoDB
+        await client.connect();
+
+        // Obtener todos los documentos de la colección 'ranking', ordenados por 'elapsedTime' de mayor a menor
+        const cursor = client.db("grup3").collection("ranking").find().sort({ elapsedTime: -1 });
+
+        const results = await cursor.toArray();
+        return results;
+    } catch (error) {
+        console.error("Error al obtener el ranking:", error);
         throw error;
     } finally {
         // Cerrar la conexión después de realizar la operación
