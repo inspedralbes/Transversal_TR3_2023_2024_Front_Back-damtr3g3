@@ -13,7 +13,7 @@ const { spawn } = require('child_process');
 var session = require('express-session')
 const xmlrpc = require('xmlrpc');
 const {getUsuarisLogin, registrarUsuariJoc, updateScore} = require('../M06 - Acces BD/androidScript.js');
-const {crearSala, unirSala, getInfoSalaConcreta} = require('../M06 - Acces BD/mongo(Android).js');
+const {crearSala, unirSala, getInfoSalaConcreta, actualitzarRanking} = require('../M06 - Acces BD/mongo(Android).js');
 const socketHandler = require('./socketHandler.js');
 const { v4: uuidv4 } = require('uuid');
 const { Client } = require('ssh2');
@@ -201,7 +201,7 @@ app.post("/usuarisLogin", async function (req, res) {
 
   usuaris = await getUsuarisLogin(connection);
   usuaris = JSON.parse(usuaris)
-  console.log(usuaris)
+  //console.log(usuaris)
   for (var i = 0; i < usuaris.length && usuariTrobat == false; i++) {
       if (usuaris[i].nomUsuari == user.nomUsuari) { 
           const match = await bcrypt.compare(user.contrasenya, usuaris[i].contrasenya);
@@ -402,3 +402,28 @@ async function crearClientesEnOdooDesdeBD() {
 
 // Llama a la función principal para iniciar el proceso de creación de clientes en Odoo desde la base de datos
 crearClientesEnOdooDesdeBD();
+
+app.use(express.json()); // Asegúrate de que estás usando el middleware para parsear el cuerpo JSON
+
+app.post("/cronometreYuser", async function (req, res) {
+   const elapsedTime = req.body.elapsedTime;
+   const username = req.body.username;
+ 
+   console.log(`Elapsed time received: ${elapsedTime}`);
+   console.log(`Username received: ${username}`);
+ 
+   const rankingData = {
+     username: username,
+     elapsedTime: elapsedTime
+   };
+ 
+   try {
+     const result = await actualitzarRanking(rankingData);
+     console.log(`Ranking updated: ${result}`);
+   } catch (error) {
+     console.error(`Error updating ranking: ${error}`);
+   }
+ 
+   res.json({ success: true, message: 'Elapsed time and username received successfully!' });
+});
+
