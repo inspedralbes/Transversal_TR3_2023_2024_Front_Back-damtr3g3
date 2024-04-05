@@ -2,7 +2,7 @@
 
 async function startGame(socket, io){
     socket.on('START_GAME', async (salaInfo) => {
-        //console.log('Start Game emit rebut', salaInfo);
+        console.log('Start Game emit rebut', salaInfo);
         try {
             io.to(salaInfo.idSala).emit('GAME_STARTED', salaInfo.idSala);
             console.log('Game started a la sala', salaInfo.idSala);
