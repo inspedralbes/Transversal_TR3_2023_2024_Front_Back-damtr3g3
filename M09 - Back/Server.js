@@ -320,7 +320,7 @@ io.on('connection', (socket) => {
   socket.on('reqRanking', async () => {
     console.log('reqRanking emit rebut');
     try {
-      const Ranking = await getRanking();
+      const Ranking = await obtenerRankingOrdenat();
       console.log('Ranking:', Ranking); 
       socket.emit('actualitzarRanking', Ranking);
       
