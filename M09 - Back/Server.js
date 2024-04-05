@@ -51,8 +51,6 @@ app.use(bodyParser.json());
 
 
 //--------------------Nuxt--------------------
-
-
 app.get('/api/products', async (req, res) => {
   const common = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/common');
   common.methodCall('authenticate', ['grup3', 'a22jonmarqui@inspedralbes.cat', 'Pedralbes24-', {}], function (error, uid) {
@@ -66,18 +64,33 @@ app.get('/api/products', async (req, res) => {
           console.error('Error:', error);
           res.status(500).json({ message: 'An error occurred' });
         } else {
-          // Convierte las imágenes a URLs de datos
-          products.forEach(product => {
-            if (product.image_1920) {
-              product.image_1920 = `data:image/png;base64,${product.image_1920}`;
-            }
+          // Convierte las imágenes a URLs de datos y obtén la cantidad de pedidos para cada producto
+          const promises = products.map(product => {
+            return new Promise((resolve, reject) => {
+              if (product.image_1920) {
+                product.image_1920 = `data:image/png;base64,${product.image_1920}`;
+              }
+              models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'sale.order.line', 'search_count', [[['product_id', '=', product.id]]]], function (error, orderCount) {
+                if (error) {
+                  console.error('Error:', error);
+                  reject(error);
+                } else {
+                  product.orderCount = orderCount;
+                  resolve();
+                }
+              });
+            });
           });
-          res.json(products);
+          Promise.all(promises)
+            .then(() => res.json(products))
+            .catch(error => res.status(500).json({ message: 'An error occurred' }));
         }
       });
     }
   });
 });
+
+  
 app.post('/api/products', async (req, res) => {
   const common = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/common');
   common.methodCall('authenticate', ['grup3', 'a22jonmarqui@inspedralbes.cat', 'Pedralbes24-', {}], function (error, uid) {
