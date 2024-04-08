@@ -1,4 +1,4 @@
-module.exports = {crearSala, unirSala, getInfoSalaConcreta, actualitzarRanking};
+module.exports = {crearSala, unirSala, getInfoSalaConcreta, actualitzarRanking, obtenerRankingOrdenat, addWinToPlayer};
 
 const { MongoClient } = require('mongodb');
 const uri = "mongodb://admin:Pedralbes24@ac-tfqzwz8-shard-00-00.uzqtbce.mongodb.net:27017,ac-tfqzwz8-shard-00-01.uzqtbce.mongodb.net:27017,ac-tfqzwz8-shard-00-02.uzqtbce.mongodb.net:27017/?ssl=true&replicaSet=atlas-2n9o7w-shard-0&authSource=admin&retryWrites=true&w=majority&appName=AtlasCluster";
@@ -44,7 +44,7 @@ async function unirSala(salaData) {
         // Realizar la actualización en la base de datos para agregar el usuario a la sala
         const result = await client.db("grup3").collection("sala").updateOne(
             { idSala: idSala },
-            { $addToSet: { jugadores: nomUsuari } }
+            { $addToSet: { jugadores: { wins: 0, nom: nomUsuari } } }
         );
 
         if (result.modifiedCount === 1) {
@@ -73,10 +73,31 @@ async function getInfoSalaConcreta(idSala) {
     } catch (error) {
         console.error("Error al obtener la sala:", error);
         throw error;
-    } finally {
-        // Cerrar la conexión después de realizar la operación
-        await client.close();
     }
+}
+
+async function addWinToPlayer(idSala, nomUsuari) {
+    try {
+        // Conectar a MongoDB
+        await client.connect();
+
+        // Incrementar el número de victorias del jugador en la sala
+        const result = await client.db("grup3").collection("sala").updateOne(
+            { idSala: idSala, "jugadores.nom": nomUsuari },
+            { $inc: { "jugadores.$.wins": 1 } }
+        );
+
+        if (result.modifiedCount === 1) {
+            console.log(`Se ha añadido una victoria al jugador ${nomUsuari} en la sala ${idSala}`);
+        } else {
+            console.log(`No se encontró la sala ${idSala} o el jugador ${nomUsuari}`);
+            throw new Error("No se pudo añadir la victoria al jugador");
+        }
+    } catch (error) {
+        console.error("Error al añadir victoria al jugador:", error);
+        throw error;
+    }
+
 }
 
 async function actualitzarRanking(rankingData) {
@@ -108,6 +129,24 @@ async function actualitzarRanking(rankingData) {
         return result ? (result.upsertedId || result.insertedId) : existingDoc._id;
     } catch (error) {
         console.error("Error al actualitzar el ranking:", error);
+        throw error;
+    } finally {
+        // Cerrar la conexión después de realizar la operación
+        await client.close();
+    }
+}
+async function obtenerRankingOrdenat() {
+    try {
+        // Conectar a MongoDB
+        await client.connect();
+
+        // Obtener todos los documentos de la colección 'ranking', ordenados por 'elapsedTime' de mayor a menor
+        const cursor = client.db("grup3").collection("ranking").find().sort({ elapsedTime: -1 });
+
+        const results = await cursor.toArray();
+        return results;
+    } catch (error) {
+        console.error("Error al obtener el ranking:", error);
         throw error;
     } finally {
         // Cerrar la conexión después de realizar la operación

@@ -102,4 +102,18 @@ async function checkPlayerDead(socket, io){
     });
 }
 
-module.exports = {startGame, listenKeyUp, listenKeyDown, checkPositions, checkHitByLog, checkHitByPlayer, checkPlayerDead, playAgain};
+async function checkGameEnded(socket, io){
+    socket.on('endGame', async(data) => {
+        //console.log('Game ended emit rebut', data);
+        let parsedData = JSON.parse(data);
+        try {
+            io.to(parsedData.salaId).emit('GAME_ENDED', parsedData);
+            //console.log('Game ended enviat a la sala', parsedData.salaId);
+        } catch (error) {
+            console.error("Error al obtener la información de la sala:", error);
+        }
+    });
+
+}
+
+module.exports = {startGame, listenKeyUp, listenKeyDown, checkPositions, checkHitByLog, checkHitByPlayer, checkPlayerDead, playAgain, checkGameEnded};
