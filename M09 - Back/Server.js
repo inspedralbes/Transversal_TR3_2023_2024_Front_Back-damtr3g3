@@ -13,7 +13,8 @@ const { spawn } = require('child_process');
 var session = require('express-session')
 const xmlrpc = require('xmlrpc');
 const {getUsuarisLogin, registrarUsuariJoc, updateScore} = require('../M06 - Acces BD/androidScript.js');
-const {crearSala, unirSala, getInfoSalaConcreta, actualitzarRanking, obtenerRankingOrdenat} = require('../M06 - Acces BD/mongo(Android).js');
+const {crearSala, unirSala, getInfoSalaConcreta, actualitzarRanking, obtenerRankingOrdenat, addWinToPlayer} = require('../M06 - Acces BD/mongo(Android).js');
+const stats_mongo = require('../M06 - Acces BD/mongoStats.js');
 const socketHandler = require('./socketHandler.js');
 const { v4: uuidv4 } = require('uuid');
 const { Client } = require('ssh2');
@@ -287,11 +288,34 @@ app.post("/score", async function (req, res) {
   try{
     const score = req.body.score;
     const nomUsuari = req.body.username;
+    const lobbyId = req.body.lobbyId;
     await updateScore(connection, score, nomUsuari);
+    await addWinToPlayer(lobbyId, nomUsuari);
     res.status(200).send("Puntuación actualizada correctamente");
   } catch (error) {
     console.error("Error al actualizar la puntuación:", error);
     res.status(500).send("Error al actualizar la puntuación");
+  }
+});
+
+app.post("/stats" , async function (req, res) {
+  const data = req.body;
+  try {
+    await stats_mongo.insertStats(data);
+    res.status(200).send("Estadísticas insertadas correctamente");
+  } catch (error) {
+    console.error("Error al insertar las estadísticas:", error);
+    res.status(500).send("Error al insertar las estadísticas");
+  }
+});
+
+app.post("/getInfoSala", async function (req, res) {
+  try {
+    const salaInfo = await getInfoSalaConcreta(req.body.idSala);
+    res.send(salaInfo);
+  } catch (error) {
+    console.error("Error al obtener la información de la sala:", error);
+    res.status(500).send("Error al obtener la información de la sala");
   }
 });
 
@@ -342,6 +366,7 @@ io.on('connection', (socket) => {
   socketHandler.checkHitByPlayer(socket, io);
   socketHandler.checkPlayerDead(socket, io);
   socketHandler.playAgain(socket, io);
+  socketHandler.checkGameEnded(socket, io);
 
 });
 
