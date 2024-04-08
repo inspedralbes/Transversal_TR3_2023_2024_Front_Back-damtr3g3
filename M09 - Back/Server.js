@@ -12,8 +12,8 @@ const http = require('http');
 const { spawn } = require('child_process');
 var session = require('express-session')
 const xmlrpc = require('xmlrpc');
-const {getUsuarisLogin, registrarUsuariJoc, updateScore} = require('../M06 - Acces BD/androidScript.js');
-const {crearSala, unirSala, getInfoSalaConcreta, actualitzarRanking, obtenerRankingOrdenat} = require('../M06 - Acces BD/mongo(Android).js');
+const { getUsuarisLogin, registrarUsuariJoc, updateScore, getInventariUsuari } = require('../M06 - Acces BD/androidScript.js');
+const { crearSala, unirSala, getInfoSalaConcreta, actualitzarRanking, obtenerRankingOrdenat } = require('../M06 - Acces BD/mongo(Android).js');
 const socketHandler = require('./socketHandler.js');
 const { v4: uuidv4 } = require('uuid');
 const { Client } = require('ssh2');
@@ -29,7 +29,7 @@ const connection = mysql.createPool({
 const httpServer = http.createServer(app);
 const io = socketIO(httpServer, {
   cors: {
-    origin: "*", 
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
@@ -90,7 +90,7 @@ app.get('/api/products', async (req, res) => {
   });
 });
 
-  
+
 app.post('/api/products', async (req, res) => {
   const common = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/common');
   common.methodCall('authenticate', ['grup3', 'a22jonmarqui@inspedralbes.cat', 'Pedralbes24-', {}], function (error, uid) {
@@ -113,8 +113,8 @@ app.post('/api/products', async (req, res) => {
         if (error) {
           console.error('Error:', error);
           res.status(500).json({ success: false, message: 'An error occurred' });
-    } else {
-      res.json({ success: true, message: 'Product created successfully!', product_id: product_id });
+        } else {
+          res.json({ success: true, message: 'Product created successfully!', product_id: product_id });
         }
       });
     }
@@ -128,8 +128,8 @@ app.delete('/api/products/:id', async (req, res) => {
       res.status(500).json({ message: 'An error occurred during authentication' });
     } else {
       const models = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/object');
-            // Imprime el ID del producto en la consola
-            console.log(`Deleting product with ID: ${req.params.id}`);
+      // Imprime el ID del producto en la consola
+      console.log(`Deleting product with ID: ${req.params.id}`);
       models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'product.product', 'unlink', [[req.params.id]]], function (error, success) {
         if (error) {
           console.error('Error:', error);
@@ -198,7 +198,7 @@ app.post('/sendBroadcast', (req, res) => {
   io.emit('broadcast', { title, message });
 
   // Imprime un mensaje más descriptivo
-  console.log(`Emitted broadcast message:\nTitle: ${title}\nMessage: ${message}`); 
+  console.log(`Emitted broadcast message:\nTitle: ${title}\nMessage: ${message}`);
 
   res.send('Successfully sent message');
 });
@@ -216,14 +216,14 @@ app.post("/usuarisLogin", async function (req, res) {
   usuaris = JSON.parse(usuaris)
   //console.log(usuaris)
   for (var i = 0; i < usuaris.length && usuariTrobat == false; i++) {
-      if (usuaris[i].nomUsuari == user.nomUsuari) { 
-          const match = await bcrypt.compare(user.contrasenya, usuaris[i].contrasenya);
-          if (match) {
-              usuariTrobat = true;
-              req.session.nombre = user.nomUsuari; 
-              usuariLog = req.session.nombre
-          }
+    if (usuaris[i].nomUsuari == user.nomUsuari) {
+      const match = await bcrypt.compare(user.contrasenya, usuaris[i].contrasenya);
+      if (match) {
+        usuariTrobat = true;
+        req.session.nombre = user.nomUsuari;
+        usuariLog = req.session.nombre
       }
+    }
   }
   autoritzacio.autoritzacio = usuariTrobat;
   res.json(autoritzacio)
@@ -231,18 +231,18 @@ app.post("/usuarisLogin", async function (req, res) {
 
 app.post("/registrarUsuari", async function (req, res) {
   nouUsuari = {
-      "nomUsuari": req.body.nomUsuari,
-      "correu": req.body.correu,
-      "contrasenya": req.body.contrasenya,  
+    "nomUsuari": req.body.nomUsuari,
+    "correu": req.body.correu,
+    "contrasenya": req.body.contrasenya,
   }
   autoritzacio = { "autoritzacio": false };
   auto = await registrarUsuariJoc(connection, nouUsuari);
   autoritzacio.autoritzacio = auto
   if (autoritzacio.autoritzacio) {
-      req.session.nombre = req.body.correu;
-      usuariLog = req.session.nombre;
-      // Llama a la función para crear clientes en Odoo después de registrar un usuario
-      await crearClientesEnOdooDesdeBD();
+    req.session.nombre = req.body.correu;
+    usuariLog = req.session.nombre;
+    // Llama a la función para crear clientes en Odoo después de registrar un usuario
+    await crearClientesEnOdooDesdeBD();
   }
   res.json(autoritzacio);
 });
@@ -251,40 +251,40 @@ app.post("/registrarUsuari", async function (req, res) {
 //Creacio sales Joc
 
 // Manejar la solicitud POST para crear una sala
-app.post("/crearSala", async function (req, res) {  
+app.post("/crearSala", async function (req, res) {
   try {
-      const salaData = {
-          idSala: req.body.idSala, 
-          creador: req.body.creadorSala,
-          estat: req.body.estatSala,
-          jugadores: req.body.jugadores,
-      };
-      await crearSala(salaData);
-      res.status(200).send("Sala creada correctamente");
+    const salaData = {
+      idSala: req.body.idSala,
+      creador: req.body.creadorSala,
+      estat: req.body.estatSala,
+      jugadores: req.body.jugadores,
+    };
+    await crearSala(salaData);
+    res.status(200).send("Sala creada correctamente");
   } catch (error) {
-      console.error("Error al crear la sala:", error);
-      res.status(500).send("Error al crear la sala");
+    console.error("Error al crear la sala:", error);
+    res.status(500).send("Error al crear la sala");
   }
 });
 
 // Manejar la solicitud POST para unirse a una sala
 app.post("/unirSala", async function (req, res) {
   try {
-      const salaData = {
-          idSala: req.body.idSala, 
-          nomUsuari: req.body.nomUsuari
-      };
-      await unirSala(salaData);
-      res.status(200).send("Te has unido a la sala correctamente");
+    const salaData = {
+      idSala: req.body.idSala,
+      nomUsuari: req.body.nomUsuari
+    };
+    await unirSala(salaData);
+    res.status(200).send("Te has unido a la sala correctamente");
   } catch (error) {
-      console.error("Error al unirse a la sala:", error);
-      res.status(500).send("Error al unirse a la sala");
+    console.error("Error al unirse a la sala:", error);
+    res.status(500).send("Error al unirse a la sala");
   }
 });
 
 //Jugador puntuar
 app.post("/score", async function (req, res) {
-  try{
+  try {
     const score = req.body.score;
     const nomUsuari = req.body.username;
     await updateScore(connection, score, nomUsuari);
@@ -295,6 +295,23 @@ app.post("/score", async function (req, res) {
   }
 });
 
+app.post('/getInventari', async function (req, res) {
+
+  try {
+    let nomUsuari = req.body.nomUsuari;
+    console.log(nomUsuari);
+
+    let inventario = await getInventariUsuari(connection, nomUsuari);
+    console.log(inventario);
+    if (inventario) {
+      res.send(inventario);
+    }
+  } catch (error) {
+    res.status(404).send({ message: 'Usuario no encontrado' });
+  }
+});
+
+
 
 //Sockets
 
@@ -302,16 +319,16 @@ io.on('connection', (socket) => {
   console.log('Usuari Connectat');
 
   socket.on('disconnect', () => {
-      console.log('Usuari Desconnectat');
+    console.log('Usuari Desconnectat');
   });
-  
+
   socket.on('unirSala', async (idSala) => {
     console.log('UnirSala emit rebut', idSala);
     try {
       const salaInfo = await getInfoSalaConcreta(idSala);
-      console.log('SalaInfo:', salaInfo); 
+      console.log('SalaInfo:', salaInfo);
       io.emit('actualitzarSala', salaInfo);
-      
+
     } catch (error) {
       console.error("Error al obtener la información de la sala:", error);
     }
@@ -321,9 +338,9 @@ io.on('connection', (socket) => {
     console.log('reqRanking emit rebut');
     try {
       const Ranking = await obtenerRankingOrdenat();
-      console.log('Ranking:', Ranking); 
+      console.log('Ranking:', Ranking);
       socket.emit('actualitzarRanking', Ranking);
-      
+
     } catch (error) {
       console.error("Error al obtener la información de la sala:", error);
     }
@@ -413,12 +430,12 @@ async function crearClientesEnOdooDesdeBD() {
   try {
     // Obtener usuarios de la base de datos
     const usuarios = await obtenerUsuariosDeBD();
-    
+
     // Crear un cliente en Odoo para cada usuario
     for (const usuario of usuarios) {
       await crearClienteEnOdoo(usuario);
     }
-    
+
     console.log('Proceso completado. Todos los clientes creados correctamente.');
   } catch (error) {
     console.error('Error al crear clientes en Odoo desde la base de datos:', error);
@@ -433,37 +450,36 @@ crearClientesEnOdooDesdeBD();
 app.use(express.json()); // Asegúrate de que estás usando el middleware para parsear el cuerpo JSON
 
 app.post("/cronometreYuser", async function (req, res) {
-   const elapsedTime = req.body.elapsedTime;
-   const username = req.body.username;
- 
-   console.log(`Elapsed time received: ${elapsedTime}`);
-   console.log(`Username received: ${username}`);
- 
-   const rankingData = {
-     username: username,
-     elapsedTime: elapsedTime
-   };
- 
-   try {
-     const result = await actualitzarRanking(rankingData);
-     console.log(`Ranking updated: ${result}`);
-   } catch (error) {
-     console.error(`Error updating ranking: ${error}`);
-   }
- 
-   res.json({ success: true, message: 'Elapsed time and username received successfully!' });
+  const elapsedTime = req.body.elapsedTime;
+  const username = req.body.username;
+
+  console.log(`Elapsed time received: ${elapsedTime}`);
+  console.log(`Username received: ${username}`);
+
+  const rankingData = {
+    username: username,
+    elapsedTime: elapsedTime
+  };
+
+  try {
+    const result = await actualitzarRanking(rankingData);
+    console.log(`Ranking updated: ${result}`);
+  } catch (error) {
+    console.error(`Error updating ranking: ${error}`);
+  }
+
+  res.json({ success: true, message: 'Elapsed time and username received successfully!' });
 });
 
 //Recoge del mongo(Android).js el ranking ordenado y se lo pasa al juego
 app.get("/ranking", async function (req, res) {
   try {
-      const ranking = await obtenerRankingOrdenat();
-      console.log(JSON.stringify(ranking, null, 2)); // Imprime el ranking en la consola del servidor
-      res.json(ranking);
+    const ranking = await obtenerRankingOrdenat();
+    console.log(JSON.stringify(ranking, null, 2)); // Imprime el ranking en la consola del servidor
+    res.json(ranking);
   } catch (error) {
-      console.error(`Error getting ranking: ${error}`);
-      res.status(500).json({ success: false, message: 'Error getting ranking!' });
+    console.error(`Error getting ranking: ${error}`);
+    res.status(500).json({ success: false, message: 'Error getting ranking!' });
   }
 });
-
 
