@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-module.exports = {registrarUsuariJoc, getUsuarisLogin, updateScore};
+module.exports = {registrarUsuariJoc, getUsuarisLogin, updateScore, getInventariUsuari};
 
 async function registrarUsuariJoc(connection, usuari){
     try {
@@ -66,3 +66,16 @@ async function updateScore(connection, score, username){
         throw error;
     }
 }
+
+
+async function getInventariUsuari(connection, nomUsuari) {
+    try {
+        const [rows, fields] = await connection.execute('SELECT product_id FROM Inventario WHERE nomUsuari = ?', [nomUsuari]);
+        const inventariJson = JSON.stringify(rows);
+        return inventariJson;
+    } catch (error) {
+        console.error('Error al obtener inventario del usuario:', error.message);
+        throw error;
+    }
+}
+
