@@ -7,24 +7,32 @@ username = 'a22jonmarqui@inspedralbes.cat'
 password = 'Pedralbes24-'
 
 # Iniciar la conexión
+# Iniciar la conexión
 common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
 uid = common.authenticate(db, username, password, {})
 
 models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
 
-# Obtener los productos
-products = models.execute_kw(db, uid, password,
-    'product.product', 'search_read',
-    [[]],
-    {'fields': ['name', 'default_code']})
+# Obtener todos los contactos
+partner_ids = models.execute_kw(db, uid, password,
+    'res.partner', 'search',
+    [[]])
 
-# Para cada producto, contar el número de pedidos de venta que lo incluyen
-# Para cada producto, contar el número de pedidos de venta que lo incluyen
-for product in products:
-    order_count = models.execute_kw(db, uid, password,
-        'sale.order.line', 'search_count',
-        [[['product_id', '=', product['id']]]])
-    print("Producto:", product['name'])
-    print("ID del producto:", product['id'])  # Print product ID
-    print("Código por defecto:", product['default_code'])
-    print("Número de pedidos:", order_count)
+# Para cada contacto, simular una compra de un producto
+for partner_id in partner_ids:
+    if partner_id == 52:  # Solo ejecutar para el contacto número 52
+        # Crear un pedido de compra para el producto
+        order_id = models.execute_kw(db, uid, password,
+            'purchase.order', 'create',
+            [{
+                'partner_id': partner_id,  # ID del contacto
+                'order_line': [(0, 0, {
+                    'product_id': 1,  # ID del producto
+                    'product_qty': 1,
+                    'name': 'Skin 1',  # Descripción del producto
+                    'price_unit': 10.0,  # Precio unitario fijo
+                })],
+            }])
+        
+        print("Pedido de compra simulado con éxito para el contacto {}.".format(partner_id))
+        break  # Salir del bucle después de procesar el contacto 52

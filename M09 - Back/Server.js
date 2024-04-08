@@ -190,6 +190,69 @@ app.post('/api/start', (req, res) => {
     privateKey: require('fs').readFileSync('C:\\Users\\alum-01\\Desktop\\keys\\ssh-key-2024-03-15.key')
   });
 });
+app.post('/api/buy', async (req, res) => {
+  console.log('Request Body:', req.body);
+  const common = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/common');
+  common.methodCall('authenticate', ['grup3', 'a22jonmarqui@inspedralbes.cat', 'Pedralbes24-', {}], function (error, uid) {
+    if (error) {
+      console.error('Error:', error);
+      res.status(500).json({ message: 'An error occurred during authentication' });
+    } else {
+      const models = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/object');
+      const productId = req.body.id;
+      const partnerName = req.body.name;
+
+      console.log('productId:', productId);
+      console.log('partnerName:', partnerName);
+
+      // Buscar el nombre y el precio de lista del producto usando el ID
+      models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'product.product', 'read', [[productId], ['name', 'list_price']]], function (error, products) {
+        if (error || products.length === 0) {
+          console.error('Error:', error);
+          res.status(500).json({ message: 'An error occurred during product search' });
+        } else {
+          const productName = products[0].name;  
+          const productPrice = products[0].list_price;  
+
+          console.log('productName:', productName);
+          console.log('productPrice:', productPrice);
+
+
+          models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'res.partner', 'search', [[['name', '=', partnerName]]]], function (error, partnerIds) {
+            if (error || partnerIds.length === 0) {
+              console.error('Error:', error);
+              res.status(500).json({ message: 'An error occurred during partner search' });
+            } else {
+              const partnerId = partnerIds[0]; 
+
+              console.log('partnerId:', partnerId);
+
+             
+              models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'purchase.order', 'create', [{
+                'partner_id': partnerId,  
+                'order_line': [(0, 0, {
+                  'product_id': productId,  
+                  'product_qty': 1,
+                  'name': productName,  
+                  'price_unit': productPrice,  
+                })],
+              }]], function (error, orderId) {
+                if (error) {
+                  console.error('Error:', error);
+                  res.status(500).json({ message: 'An error occurred during the purchase' });
+                } else {
+                  console.log('orderId:', orderId);
+                  res.json({ message: 'Purchase simulated successfully', orderId: orderId });
+                }
+              });
+            }
+          });
+        }
+      });
+    }
+  });
+});
+
 
 
 app.post('/sendBroadcast', (req, res) => {

@@ -11,29 +11,12 @@ common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
 uid = common.authenticate(db, username, password, {})
 
 models = xmlrpc.client.ServerProxy('{}/xmlrpc/2/object'.format(url))
+# Obtener todos los productos
+products = models.execute_kw(db, uid, password,
+    'product.product', 'search_read',
+    [[]],
+    {'fields': ['id', 'name', 'default_code']})  # fields to return
 
-# Buscar el producto con default_code 2
-product_id = models.execute_kw(db, uid, password,
-    'product.product', 'search',
-    [[['default_code', '=', '2']]])
-
-if product_id:
-    # Crear un pedido de venta para el producto
-    order_id = models.execute_kw(db, uid, password,
-        'sale.order', 'create',
-        [{
-            'partner_id': 1,  # ID del cliente
-            'order_line': [(0, 0, {
-                'product_id': product_id[0],
-                'product_uom_qty': 2,
-            })],
-        }])
-    
-    # Confirmar el pedido de venta
-    models.execute_kw(db, uid, password,
-        'sale.order', 'action_confirm',
-        [order_id])
-    
-    print("Pedido de venta creado y confirmado con éxito.")
-else:
-    print("No se encontró ningún producto con default_code 2.")
+# Imprimir los productos y sus IDs
+for product in products:
+    print("ID: {}, Name: {}, Default Code: {}".format(product['id'], product['name'], product['default_code']))
