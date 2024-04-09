@@ -8,8 +8,6 @@
   </div>
 </template>
 
-
-
 <script>
 export default {
   components: {
@@ -17,5 +15,8 @@ export default {
     NavBar: () => import('@/components/NavBar.vue')
   }
 }
-
 </script>
+
+<style scoped>
+/* Aquí van tus estilos CSS */
+</style>
