@@ -336,7 +336,8 @@ app.post("/unirSala", async function (req, res) {
   try {
     const salaData = {
       idSala: req.body.idSala,
-      nomUsuari: req.body.nomUsuari
+      nomUsuari: req.body.nomUsuari,
+      skin: req.body.skin
     };
     await unirSala(salaData);
     res.status(200).send("Te has unido a la sala correctamente");
