@@ -337,7 +337,8 @@ app.post("/unirSala", async function (req, res) {
   try {
     const salaData = {
       idSala: req.body.idSala,
-      nomUsuari: req.body.nomUsuari
+      nomUsuari: req.body.nomUsuari,
+      skin: req.body.skin
     };
     await unirSala(salaData);
     res.status(200).send("Te has unido a la sala correctamente");
@@ -399,6 +400,15 @@ app.post('/getInventari', async function (req, res) {
   }
 });
 
+app.get('/getStats', async function (req, res) {
+  try {
+    const stats = await stats_mongo.getStats();
+    res.json(stats);
+  } catch (error) {
+    console.error("Error al obtener las estadísticas:", error);
+    res.status(500).json({ message: 'Error getting stats!' });
+  }
+});
 
 
 //Sockets

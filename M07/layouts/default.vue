@@ -4,11 +4,9 @@
     <div class="container mx-auto p-4">
       <slot />
     </div>
-    <Footer />
+    
   </div>
 </template>
-
-
 
 <script>
 export default {
@@ -17,5 +15,8 @@ export default {
     NavBar: () => import('@/components/NavBar.vue')
   }
 }
-
 </script>
+
+<style scoped>
+/* Aquí van tus estilos CSS */
+</style>

@@ -44,3 +44,9 @@ export async function startContainer() {
   const data = await response.text();
   return data;
 }
+
+export async function getStats() {
+  const response = await fetch(BASE_URL + '/getStats');
+  const data = await response.json();
+  return data;
+}

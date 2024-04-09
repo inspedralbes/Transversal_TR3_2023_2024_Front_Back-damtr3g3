@@ -30,6 +30,8 @@ async function unirSala(salaData) {
 
         const idSala = salaData.idSala;
         const nomUsuari = salaData.nomUsuari; 
+        const skin = salaData.skin;
+        console.log(skinUsuari);
 
         // Comprobar si la sala existe
         const sala = await client.db("grup3").collection("sala").findOne({ idSala: idSala });
@@ -44,7 +46,7 @@ async function unirSala(salaData) {
         // Realizar la actualización en la base de datos para agregar el usuario a la sala
         const result = await client.db("grup3").collection("sala").updateOne(
             { idSala: idSala },
-            { $addToSet: { jugadores: { wins: 0, nom: nomUsuari } } }
+            { $addToSet: { jugadores: { wins: 0, nom: nomUsuari, skin: skin } } }
         );
 
         if (result.modifiedCount === 1) {
