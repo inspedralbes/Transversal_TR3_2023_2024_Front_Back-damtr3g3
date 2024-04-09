@@ -398,6 +398,15 @@ app.post('/getInventari', async function (req, res) {
   }
 });
 
+app.get('/getStats', async function (req, res) {
+  try {
+    const stats = await stats_mongo.getStats();
+    res.json(stats);
+  } catch (error) {
+    console.error("Error al obtener las estadísticas:", error);
+    res.status(500).json({ message: 'Error getting stats!' });
+  }
+});
 
 
 //Sockets

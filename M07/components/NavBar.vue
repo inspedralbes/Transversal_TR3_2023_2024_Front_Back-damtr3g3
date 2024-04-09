@@ -8,6 +8,7 @@
           <li><NuxtLink to="/sprites">Sprites</NuxtLink></li>
           <li><NuxtLink to="/broadcast">Broadcast</NuxtLink></li>
           <li><NuxtLink to="/settings">Settings</NuxtLink></li>
+          <li><NuxtLink to="/stats">Estadístiques</NuxtLink></li>
         </ul>
       </nav>
     </header>
