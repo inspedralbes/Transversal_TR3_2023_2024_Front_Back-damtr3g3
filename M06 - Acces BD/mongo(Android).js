@@ -31,7 +31,6 @@ async function unirSala(salaData) {
         const idSala = salaData.idSala;
         const nomUsuari = salaData.nomUsuari; 
         const skin = salaData.skin;
-        console.log(skinUsuari);
 
         // Comprobar si la sala existe
         const sala = await client.db("grup3").collection("sala").findOne({ idSala: idSala });
