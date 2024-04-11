@@ -443,16 +443,6 @@ io.on('connection', (socket) => {
 
 });
 
-httpServer.listen(PORT, () => {
-  console.log("Server => " + PORT);
-});
-var history = require('connect-history-api-fallback')
-const staticFileMiddleware = express.static('../dist');
-app.use(staticFileMiddleware);
-app.use(history({
-  disableDotRule: true,
-  verbose: true
-}));
 
 // Función para crear un cliente en Odoo
 async function crearClienteEnOdoo(usuario) {
@@ -564,3 +554,14 @@ app.get("/ranking", async function (req, res) {
   }
 });
 
+
+httpServer.listen(PORT, () => {
+  console.log("Server => " + PORT);
+});
+var history = require('connect-history-api-fallback')
+const staticFileMiddleware = express.static('../dist');
+app.use(staticFileMiddleware);
+app.use(history({
+  disableDotRule: true,
+  verbose: true
+}));
