@@ -16,6 +16,8 @@ const { getUsuarisLogin, registrarUsuariJoc, updateScore, getInventariUsuari } =
 const { crearSala, unirSala, getInfoSalaConcreta, addWinToPlayer } = require('../M06 - Acces BD/mongo(Android).js');
 const {actualitzarRanking, obtenerRankingOrdenat} = require('../M06 - Acces BD/mongoRanking.js');
 const stats_mongo = require('../M06 - Acces BD/mongoStats.js');
+const actualizarDatos  = require('../M06 - Acces BD/mongoSettings.js');
+
 const socketHandler = require('./socketHandler.js');
 const { v4: uuidv4 } = require('uuid');
 const { Client } = require('ssh2');
@@ -235,6 +237,17 @@ app.post('/sendBroadcast', (req, res) => {
   console.log(`Emitted broadcast message:\nTitle: ${title}\nMessage: ${message}`);
 
   res.send('Successfully sent message');
+});
+app.put('/api/resultados/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const nuevosDatos = req.body;
+    const result = await actualizarDatos(id, nuevosDatos);
+    res.json({ success: true, message: 'Datos actualizados con éxito', result });
+  } catch (error) {
+    console.error('Hubo un error al actualizar los datos:', error);
+    res.status(500).json({ success: false, message: 'Hubo un error al actualizar los datos' });
+  }
 });
 
 
