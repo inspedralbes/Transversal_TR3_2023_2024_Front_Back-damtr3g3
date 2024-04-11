@@ -3,31 +3,45 @@
     <h2>Configuración</h2>
     <div class="input-container">
       <label for="aceleracion-tronco">Aceleración del tronco:</label>
-      <input type="range" id="aceleracion-tronco" min="0" max="100" step="1" @input="updateAceleracionTronco">
+      <input type="range" id="aceleracion-tronco" min="0" max="100" step="1" v-model="aceleracionTronco">
       <span id="valor-aceleracion-tronco">{{ aceleracionTronco }}</span>
     </div>
     <div class="input-container">
       <label for="dano-personaje">Daño recibido del personaje:</label>
-      <input type="number" id="dano-personaje">
+      <input type="number" id="dano-personaje" v-model="danoPersonaje">
     </div>
     <div class="input-container">
       <label for="velocidad-personaje">Velocidad del personaje:</label>
-      <input type="number" id="velocidad-personaje">
+      <input type="number" id="velocidad-personaje" v-model="velocidadPersonaje">
     </div>
-    <button class="custom-button">Enviar</button>
+    <button class="custom-button" @click="enviarDatos">Enviar</button>
   </div>
 </template>
 
 <script>
+import { actualizarDatos } from '../services/communicationsManager';
+
 export default {
   data() {
     return {
-      aceleracionTronco: 0
+      aceleracionTronco: 0,
+      danoPersonaje: 0,
+      velocidadPersonaje: 0
     };
   },
   methods: {
-    updateAceleracionTronco(event) {
-      this.aceleracionTronco = event.target.value;
+    async enviarDatos() {
+      const datos = {
+        aceleracionTronco: this.aceleracionTronco,
+        danoPersonaje: this.danoPersonaje,
+        velocidadPersonaje: parseFloat(this.velocidadPersonaje.toFixed(1))
+      };
+      try {
+        const result = await actualizarDatos(datos);
+        console.log('Datos enviados con éxito:', result);
+      } catch (error) {
+        console.error('Hubo un error al enviar los datos:', error);
+      }
     }
   }
 };

@@ -50,3 +50,19 @@ export async function getStats() {
   const data = await response.json();
   return data;
 }
+export async function actualizarDatos(id, nuevosDatos) {
+  const response = await fetch(BASE_URL + '/api/resultados/' + id, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(nuevosDatos),
+  });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const data = await response.json();
+  return data;
+}
