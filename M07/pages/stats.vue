@@ -34,9 +34,25 @@ export default {
       playerDamages: {},
       playerData: [],
       playerNames: [],
+      intervalId: null,
     };
   },
+  mounted() {
+    this.intervalId = setInterval(() => {
+      this.fetchStats();
+      console.log("Stats updated");
+    }, 5000);
+  },
+  beforeDestroy() {
+    clearInterval(this.intervalId);
+  },
   methods: {
+    fetchStats(){
+      getStats().then((stats) => {
+        this.stats = stats;
+        this.processStats(stats);
+      });
+    },
     processStats(stats) {
       const playerPositions = {};
       const playerDamages = {};
@@ -186,8 +202,11 @@ export default {
           tooltip: {
             callbacks: {
               title: function(context) {
-                return context[0].raw.playerName;
+                return context[0].raw.playerNames;
               },
+              label: function(context){
+                return context.raw.playerNames;
+              }
             }
           }
         }
