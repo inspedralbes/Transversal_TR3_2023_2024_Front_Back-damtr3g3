@@ -16,7 +16,7 @@ const { getUsuarisLogin, registrarUsuariJoc, updateScore, getInventariUsuari } =
 const { crearSala, unirSala, getInfoSalaConcreta, addWinToPlayer } = require('../M06 - Acces BD/mongo(Android).js');
 const {actualitzarRanking, obtenerRankingOrdenat} = require('../M06 - Acces BD/mongoRanking.js');
 const stats_mongo = require('../M06 - Acces BD/mongoStats.js');
-const {actualizarDatos}  = require('../M06 - Acces BD/mongoSettings.js');
+const {actualizarDatos, leerDatos}  = require('../M06 - Acces BD/mongoSettings.js');
 
 const socketHandler = require('./socketHandler.js');
 const { v4: uuidv4 } = require('uuid');
@@ -574,6 +574,22 @@ app.post('/ruta/datos', async (req, res) => {
     res.status(500).json({ error: 'Error al actualizar los datos en MongoDB' });
   }
 });
+
+app.get('/ruta/datos', async (req, res) => {
+  try {
+    // Leer los datos de MongoDB
+    const datos = await leerDatos();
+
+    // Devolver los datos al cliente
+    res.status(200).json(datos);
+  } catch (error) {
+    // Manejar cualquier error que pueda ocurrir durante la recuperación de datos
+    console.error('Error al recuperar los datos de MongoDB:', error);
+    // Enviar una respuesta de error al cliente
+    res.status(500).json({ error: 'Error al recuperar los datos de MongoDB' });
+  }
+});
+
 
 httpServer.listen(PORT, () => {
   console.log("Server => " + PORT);
