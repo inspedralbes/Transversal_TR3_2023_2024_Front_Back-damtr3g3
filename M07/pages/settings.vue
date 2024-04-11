@@ -19,7 +19,8 @@
 </template>
 
 <script>
-import { actualizarDatos } from '../services/communicationsManager';
+
+import { enviarDatosAlServidor } from '../services/communicationsManager';
 
 export default {
   data() {
@@ -31,16 +32,17 @@ export default {
   },
   methods: {
     async enviarDatos() {
-      const datos = {
-        aceleracionTronco: this.aceleracionTronco,
-        danoPersonaje: this.danoPersonaje,
-        velocidadPersonaje: parseFloat(this.velocidadPersonaje.toFixed(1))
-      };
       try {
-        const result = await actualizarDatos(datos);
-        console.log('Datos enviados con éxito:', result);
+        // Convertir aceleracionTronco a string con "f" al final
+        const aceleracionTroncoString = parseFloat(this.aceleracionTronco).toFixed(1) + 'f';
+
+        // Llamas a la función para enviar los datos al servidor, pasando la aceleracionTronco con "f"
+        await enviarDatosAlServidor(aceleracionTroncoString, this.danoPersonaje, this.velocidadPersonaje);
+        // Aquí puedes hacer algo después de enviar los datos, como mostrar un mensaje de éxito
       } catch (error) {
-        console.error('Hubo un error al enviar los datos:', error);
+        // Manejas cualquier error que pueda ocurrir durante el envío de datos
+        console.error('Error al enviar los datos desde el componente:', error);
+        // Aquí puedes mostrar un mensaje de error al usuario si es necesario
       }
     }
   }
