@@ -5,7 +5,9 @@
 </template>
 
 <script setup>
-
+    definePageMeta({
+        layout: 'pagmenu',
+    })
 
 </script>
 

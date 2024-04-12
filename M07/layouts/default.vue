@@ -17,6 +17,3 @@ export default {
 }
 </script>
 
-<style scoped>
-/* Aquí van tus estilos CSS */
-</style>
