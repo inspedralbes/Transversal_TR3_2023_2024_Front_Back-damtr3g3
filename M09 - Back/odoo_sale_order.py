@@ -67,35 +67,16 @@ def create_sale_order(url, db, username, password, product_id, name, list_price)
     # Confirm the invoice
     models.execute_kw(db, uid, password, 'account.move', 'action_post', [invoice_id])
 
-    # Get the id of the invoice report
-    report_id = models.execute_kw(db, uid, password, 'ir.actions.report', 'search', [[['report_name', '=', 'Report de la compra']]])[0]
-
-    # Generate the report for the invoice
-    report_result, report_format = models.execute_kw(db, uid, password, 'ir.actions.report', 'render_report', [report_id, [invoice_id]])
-
-    # The report file is the binary data of the report_result
-    report_file = base64.b64decode(report_result)
-
-    # Create an attachment with the report file
-    attachment_id = models.execute_kw(db, uid, password, 'ir.attachment', 'create', [{
-        'name': 'Invoice.pdf',
-        'datas': base64.b64encode(report_file),
-        'res_model': 'account.move',
-        'res_id': invoice_id,
-        'type': 'binary'
+    # Create a new mail.message record
+    mail_id = models.execute_kw(db, uid, password, 'mail.mail', 'create', [{
+        'subject': 'Compra al joc',
+        'body_html': 'Gràcies per comprar al joc! Si vols veure la factura pots veure-la al teu compte de Odoo.',
+        'email_from': 'a22rubsersot@inspedralbes.cat',
+        'recipient_ids': [(6, 0, [partner_id])],  # replace partner_id with the ID of the partner
     }])
 
-    # Send the invoice via email with the report file attached
-    models.execute_kw(db, uid, password, 'account.move', 'message_post', [invoice_id], {
-        'body': "S'ha generat la factura de la compra. La podeu veure a l'apartat de facturació de la vostra compte.",
-        'subject': "Factura de la compra",
-        'partner_ids': [(4, partner_id)],  # partner_id is the id of the recipient
-        'message_type': 'notification',
-        'subtype': 'mail.mt_comment',  # or 'mail.mt_note' for a note
-        'attachment_ids': [(4, attachment_id)],  # attach the report file
-    })
-
-
+    # Finally, send the email
+    models.execute_kw(db, uid, password, 'mail.mail', 'send', [[mail_id]])
 
     print("Sent email to partner.")
 

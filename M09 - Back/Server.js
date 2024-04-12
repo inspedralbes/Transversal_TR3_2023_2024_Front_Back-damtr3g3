@@ -12,11 +12,13 @@ const http = require('http');
 const { spawn } = require('child_process');
 var session = require('express-session')
 const xmlrpc = require('xmlrpc');
-const { getUsuarisLogin, registrarUsuariJoc, updateScore, getInventariUsuari } = require('../M06 - Acces BD/androidScript.js');
+const { getUsuarisLogin, registrarUsuariJoc, updateScore, getInventariUsuari, afegirInventari, getOnlyProductsUsuari, 
+  getUserMoney, restarDiners } = require('../M06 - Acces BD/androidScript.js');
 const { crearSala, unirSala, getInfoSalaConcreta, addWinToPlayer } = require('../M06 - Acces BD/mongo(Android).js');
 const {actualitzarRanking, obtenerRankingOrdenat} = require('../M06 - Acces BD/mongoRanking.js');
 const stats_mongo = require('../M06 - Acces BD/mongoStats.js');
 const {actualizarDatos, leerDatos}  = require('../M06 - Acces BD/mongoSettings.js');
+const {  saveImageToDB} = require('../M06 - Acces BD/mongoImage.js');
 
 const socketHandler = require('./socketHandler.js');
 const { v4: uuidv4 } = require('uuid');
@@ -124,6 +126,21 @@ app.post('/api/products', async (req, res) => {
     }
   });
 });
+app.post('/api/images', async (req, res) => {
+  // Extrae la imagen codificada en base64 y el ID del producto de la solicitud
+  const base64Image = req.body.image;
+  const productId = req.body.productId;
+
+  // Usa la función saveImageToDB para guardar la imagen y el ID del producto en MongoDB
+  const imageId = await saveImageToDB(base64Image, productId);
+
+  if (imageId) {
+    res.json({ success: true, message: 'Image saved successfully!', imageId: imageId });
+  } else {
+    res.status(500).json({ success: false, message: 'An error occurred while saving the image.' });
+  }
+});
+
 app.delete('/api/products/:id', async (req, res) => {
   const common = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/common');
   common.methodCall('authenticate', ['grup3', 'a22jonmarqui@inspedralbes.cat', 'Pedralbes24-', {}], function (error, uid) {
@@ -146,6 +163,20 @@ app.delete('/api/products/:id', async (req, res) => {
       });
     }
   });
+});
+
+app.get('/api/userProducts', async (req, res) => {
+  const username = req.query.username;
+
+  let inventariUsuari = await getOnlyProductsUsuari(connection, username);
+  console.log(inventariUsuari);
+  res.json(inventariUsuari);
+});
+
+app.get("/api/getUserMoney", async function (req, res) {
+  const username = req.query.username;
+  const money = await getUserMoney(connection, username);
+  res.json(money);
 });
 
 app.post('/api/stop', (req, res) => {
@@ -194,6 +225,32 @@ app.post('/api/start', (req, res) => {
     privateKey: require('fs').readFileSync('./ssh-key-2024-03-15.key')
   });
 });
+app.get('/api/status', (req, res) => {
+  const conn = new Client();
+  conn.on('ready', () => {
+    console.log('Client :: ready');
+    conn.exec('cd /home/ubuntu/dockers; sudo docker-compose ps', (err, stream) => {
+      if (err) throw err;
+      let data = '';
+      stream.on('close', (code, signal) => {
+        console.log('Stream :: close :: code: ' + code + ', signal: ' + signal);
+        conn.end();
+        // Aquí puedes parsear los datos para obtener el estado del contenedor
+        res.send(data);
+      }).on('data', (chunk) => {
+        console.log('STDOUT: ' + chunk);
+        data += chunk;
+      }).stderr.on('data', (chunk) => {
+        console.log('STDERR: ' + chunk);
+      });
+    });
+  }).connect({
+    host: '141.147.8.58',
+    port: 22,
+    username: 'ubuntu',
+    privateKey: require('fs').readFileSync('./ssh-key-2024-03-15.key')
+  });
+});
 
 app.post('/api/buy', async (req, res) => {
   console.log('Request Body:', req.body);
@@ -208,6 +265,8 @@ app.post('/api/buy', async (req, res) => {
         req.body.name,
         req.body.list_price,
       ]
+        restarDiners(connection, req.body.name, req.body.list_price);
+        afegirInventari(connection, req.body.name, req.body.id);
         const python = spawn('py', ['./odoo_sale_order.py', ...args]);
 
         python.stdout.on('data', (data) => {

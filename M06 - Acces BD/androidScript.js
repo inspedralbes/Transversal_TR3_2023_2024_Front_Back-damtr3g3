@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
-module.exports = {registrarUsuariJoc, getUsuarisLogin, updateScore, getInventariUsuari};
+module.exports = {registrarUsuariJoc, getUsuarisLogin, updateScore, getInventariUsuari, afegirInventari, getOnlyProductsUsuari, 
+    getUserMoney, restarDiners};
 
 async function registrarUsuariJoc(connection, usuari){
     try {
@@ -67,6 +68,23 @@ async function updateScore(connection, score, username){
     }
 }
 
+async function restarDiners(connection, username, amount){
+    try{
+        const [result] = await connection.execute(
+            'UPDATE Usuaris SET diners = diners - ? WHERE nomUsuari = ?',
+            [amount, username]
+        );
+        if (result.affectedRows === 1) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al restar dinero:', error.message);
+        throw error;
+    }
+}
+
 
 async function getInventariUsuari(connection, nomUsuari) {
     try {
@@ -79,3 +97,40 @@ async function getInventariUsuari(connection, nomUsuari) {
     }
 }
 
+async function getOnlyProductsUsuari(connection, nomUsuari) {
+    try {
+        const [rows, fields] = await connection.execute('SELECT product_id FROM Inventario WHERE nomUsuari = ?', [nomUsuari]);
+        const productIds = rows.map(row => row.product_id);
+        return productIds;
+    } catch (error) {
+        console.error('Error al obtener inventario del usuario:', error.message);
+        throw error;
+    }
+}
+
+async function afegirInventari(connection, playerId, productId){
+    try {
+        const [result] = await connection.execute(
+            'INSERT INTO Inventario (nomUsuari, product_id) VALUES (?,?)',
+            [playerId, productId]
+        );
+        if (result.affectedRows === 1) {
+            return true;
+        } else {
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al insertar producto en inventario:', error.message);
+        throw error;
+    }
+}
+
+async function getUserMoney(connection, username){
+    try {
+        const [rows, fields] = await connection.execute('SELECT diners FROM Usuaris WHERE nomUsuari = ?', [username]);
+        return rows[0].diners;
+    } catch (error) {
+        console.error('Error al obtener dinero del usuario:', error.message);
+        throw error;
+    }
+}
