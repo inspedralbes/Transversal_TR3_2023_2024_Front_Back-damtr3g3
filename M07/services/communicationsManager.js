@@ -50,19 +50,32 @@ export async function getStats() {
   const data = await response.json();
   return data;
 }
-export async function actualizarDatos(id, nuevosDatos) {
-  const response = await fetch(BASE_URL + '/api/resultados/' + id, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(nuevosDatos),
-  });
 
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+export async function enviarDatosAlServidor(aceleracionTronco, danoPersonaje, velocidadPersonaje) {
+  try {
+    // Haces una solicitud POST al servidor con los datos
+    const response = await fetch(BASE_URL + '/ruta/datos', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        aceleracionTronco,
+        danoPersonaje,
+        velocidadPersonaje
+      }),
+    });
+
+    // Verificas si la solicitud fue exitosa
+    if (response.ok) {
+      const data = await response.json();
+      console.log('Datos enviados exitosamente:', data);
+      return data;
+    } else {
+      throw new Error(`Error al enviar los datos: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error al enviar los datos:', error);
+    throw error;
   }
-
-  const data = await response.json();
-  return data;
 }
