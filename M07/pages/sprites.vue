@@ -11,7 +11,6 @@
           <v-text-field v-model="newProduct.name" label="Nombre del producto"></v-text-field>
           <v-text-field v-model="newProduct.list_price" label="Precio de venta" type="number"></v-text-field>
           <v-text-field v-model="newProduct.standard_price" label="Precio de coste" type="number"></v-text-field>
-          <v-select v-model="newProduct.type" :items="['product', 'consu', 'service']" label="Tipo de producto"></v-select>
           <v-file-input v-model="newProduct.image_1920" label="Imagen del producto"></v-file-input>
         </v-card-text>
         <v-card-actions>
@@ -45,7 +44,7 @@ export default {
         name: '',
         list_price: 0,
         standard_price: 0,
-        type: 'product',
+        type: 'service',
         image_1920: null,
       },
     };
@@ -112,6 +111,7 @@ export default {
 
 };
 </script>
+
 
 <style scoped>
 h2 {
