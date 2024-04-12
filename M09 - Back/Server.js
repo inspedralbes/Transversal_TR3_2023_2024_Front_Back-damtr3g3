@@ -12,7 +12,8 @@ const http = require('http');
 const { spawn } = require('child_process');
 var session = require('express-session')
 const xmlrpc = require('xmlrpc');
-const { getUsuarisLogin, registrarUsuariJoc, updateScore, getInventariUsuari } = require('../M06 - Acces BD/androidScript.js');
+const { getUsuarisLogin, registrarUsuariJoc, updateScore, getInventariUsuari, afegirInventari, getOnlyProductsUsuari, 
+  getUserMoney, restarDiners } = require('../M06 - Acces BD/androidScript.js');
 const { crearSala, unirSala, getInfoSalaConcreta, addWinToPlayer } = require('../M06 - Acces BD/mongo(Android).js');
 const {actualitzarRanking, obtenerRankingOrdenat} = require('../M06 - Acces BD/mongoRanking.js');
 const stats_mongo = require('../M06 - Acces BD/mongoStats.js');
@@ -148,6 +149,20 @@ app.delete('/api/products/:id', async (req, res) => {
   });
 });
 
+app.get('/api/userProducts', async (req, res) => {
+  const username = req.query.username;
+
+  let inventariUsuari = await getOnlyProductsUsuari(connection, username);
+  console.log(inventariUsuari);
+  res.json(inventariUsuari);
+});
+
+app.get("/api/getUserMoney", async function (req, res) {
+  const username = req.query.username;
+  const money = await getUserMoney(connection, username);
+  res.json(money);
+});
+
 app.post('/api/stop', (req, res) => {
   const conn = new Client();
   conn.on('ready', () => {
@@ -208,6 +223,8 @@ app.post('/api/buy', async (req, res) => {
         req.body.name,
         req.body.list_price,
       ]
+        restarDiners(connection, req.body.name, req.body.list_price);
+        afegirInventari(connection, req.body.name, req.body.id);
         const python = spawn('py', ['./odoo_sale_order.py', ...args]);
 
         python.stdout.on('data', (data) => {
