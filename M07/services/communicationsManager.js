@@ -16,6 +16,24 @@ export async function sendBroadcast(title,message) {
   const data = await response.text();
   return data;
 }
+export async function sendImageToServer(base64Image,productId) {
+  const response = await fetch(BASE_URL + '/api/images', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ image: base64Image, productId: productId }),
+  });
+
+  if (response.ok) {
+    const data = await response.json();
+    console.log('Image sent successfully:', data);
+    return data;
+  } else {
+    throw new Error(`Error sending the image: ${response.status}`);
+  }
+}
+
 export async function createProduct(product) {
   const response = await fetch(BASE_URL + '/api/products', {
     method: 'POST',

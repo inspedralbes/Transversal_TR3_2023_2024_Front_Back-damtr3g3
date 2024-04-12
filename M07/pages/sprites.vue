@@ -33,7 +33,7 @@
   </div>
 </template>
 <script>
-import { getProducts, createProduct, deleteProduct } from '../services/communicationsManager';
+import { getProducts, createProduct, deleteProduct,sendImageToServer   } from '../services/communicationsManager';
 
 export default {
   data() {
@@ -66,34 +66,40 @@ export default {
       });
     },
     async createProduct() {
-    let image = null;
-    if (this.newProduct.image_1920) {
-      const file = this.newProduct.image_1920[0];
-      image = await this.readFileAsDataURL(file);
-    }
+  let image = null;
+  if (this.newProduct.image_1920) {
+    const file = this.newProduct.image_1920[0];
+    image = await this.readFileAsDataURL(file);
+  }
 
-    const response = await createProduct({
-      ...this.newProduct,
-      image_1920: image,
-    });
 
-    if (response && response.success) {
-      alert('Producto creado correctamente!');
-      // Restablecer newProduct a su estado inicial
-      this.newProduct = {
-        name: '',
-        list_price: 0,
-        standard_price: 0,
-        type: 'service',
-        image_1920: null,
-      };
-    } else {
-      alert('Hubo un problema al crear el producto.');
-    }
 
-    this.dialog = false;
-    this.products = await getProducts();  // Actualizar la lista de productos
-  },
+  const product = {
+    ...this.newProduct,
+    image_1920: image,  // Usa la imagen en base64
+  };
+
+  const response = await createProduct(product);
+
+  if (response && response.success) {
+    const imageResponse = await sendImageToServer(image, response.product_id);
+    const imageId = imageResponse.imageId;
+    alert('Producto creado correctamente!');
+    this.newProduct = {
+      name: '',
+      list_price: 0,
+      standard_price: 0,
+      type: 'service',
+      image_1920: null,
+    };
+  } else {
+    alert('Hubo un problema al crear el producto.');
+  }
+
+  this.dialog = false;
+  this.products = await getProducts();
+},
+
   async deleteProduct(id) {
   // Imprime el ID del producto en la consola
   console.log(`Deleting product with ID: ${id}`);

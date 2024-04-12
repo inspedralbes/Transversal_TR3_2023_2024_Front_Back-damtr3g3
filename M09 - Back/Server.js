@@ -17,6 +17,7 @@ const { crearSala, unirSala, getInfoSalaConcreta, addWinToPlayer } = require('..
 const {actualitzarRanking, obtenerRankingOrdenat} = require('../M06 - Acces BD/mongoRanking.js');
 const stats_mongo = require('../M06 - Acces BD/mongoStats.js');
 const {actualizarDatos, leerDatos}  = require('../M06 - Acces BD/mongoSettings.js');
+const {  saveImageToDB} = require('../M06 - Acces BD/mongoImage.js');
 
 const socketHandler = require('./socketHandler.js');
 const { v4: uuidv4 } = require('uuid');
@@ -124,6 +125,21 @@ app.post('/api/products', async (req, res) => {
     }
   });
 });
+app.post('/api/images', async (req, res) => {
+  // Extrae la imagen codificada en base64 y el ID del producto de la solicitud
+  const base64Image = req.body.image;
+  const productId = req.body.productId;
+
+  // Usa la función saveImageToDB para guardar la imagen y el ID del producto en MongoDB
+  const imageId = await saveImageToDB(base64Image, productId);
+
+  if (imageId) {
+    res.json({ success: true, message: 'Image saved successfully!', imageId: imageId });
+  } else {
+    res.status(500).json({ success: false, message: 'An error occurred while saving the image.' });
+  }
+});
+
 app.delete('/api/products/:id', async (req, res) => {
   const common = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/common');
   common.methodCall('authenticate', ['grup3', 'a22jonmarqui@inspedralbes.cat', 'Pedralbes24-', {}], function (error, uid) {
