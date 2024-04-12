@@ -67,15 +67,16 @@ def create_sale_order(url, db, username, password, product_id, name, list_price)
     # Confirm the invoice
     models.execute_kw(db, uid, password, 'account.move', 'action_post', [invoice_id])
 
-    # Create a payment register
-    payment_register_id = models.execute_kw(db, uid, password, 'account.payment.register', 'create', [{
-        'journal_id': 6,  # replace with your bank journal ID
-        'payment_method_id': 1,  # replace with your payment method ID
-        'invoice_ids': [(4, invoice_id)]
-    }], {'context': {'active_model': 'account.move', 'active_ids': [invoice_id]}})
+    # Create a new mail.message record
+    mail_id = models.execute_kw(db, uid, password, 'mail.mail', 'create', [{
+        'subject': 'Compra al joc',
+        'body_html': 'Gràcies per comprar al joc! Si vols veure la factura pots veure-la al teu compte de Odoo.',
+        'email_from': 'a22rubsersot@inspedralbes.cat',
+        'recipient_ids': [(6, 0, [partner_id])],  # replace partner_id with the ID of the partner
+    }])
 
-    # Create payments
-    models.execute_kw(db, uid, password, 'account.payment.register', 'create_payments', [[payment_register_id]])
+    # Finally, send the email
+    models.execute_kw(db, uid, password, 'mail.mail', 'send', [[mail_id]])
 
     print("Sent email to partner.")
 
