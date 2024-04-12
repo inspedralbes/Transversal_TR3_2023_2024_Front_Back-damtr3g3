@@ -3,7 +3,7 @@
     <h2>Configuración</h2>
     <div class="input-container">
       <label for="aceleracion-tronco">Aceleración del tronco:</label>
-      <input type="range" id="aceleracion-tronco" min="0" max="100" step="1" v-model="aceleracionTronco">
+      <input type="range" id="aceleracion-tronco" min="0.1" max="50" step="0.1" v-model="aceleracionTronco">
       <span id="valor-aceleracion-tronco">{{ aceleracionTronco }}</span>
     </div>
     <div class="input-container">
@@ -19,7 +19,6 @@
 </template>
 
 <script>
-
 import { enviarDatosAlServidor } from '../services/communicationsManager';
 
 export default {
