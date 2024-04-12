@@ -1,17 +1,17 @@
 <template>
   <div class="main-content">
-    <h2>Sprites</h2>
-    <v-btn @click="dialog = true">Crear producto</v-btn>
+    <h2>Sprites</h2><br>
+    <v-btn @click="dialog = true">Crear producte</v-btn>
     <v-dialog v-model="dialog" max-width="500px">
       <v-card>
         <v-card-title>
-          <span class="headline">Crear producto</span>
+          <span class="headline">Crear producte</span>
         </v-card-title>
         <v-card-text>
-          <v-text-field v-model="newProduct.name" label="Nombre del producto"></v-text-field>
-          <v-text-field v-model="newProduct.list_price" label="Precio de venta" type="number"></v-text-field>
-          <v-text-field v-model="newProduct.standard_price" label="Precio de coste" type="number"></v-text-field>
-          <v-file-input v-model="newProduct.image_1920" label="Imagen del producto"></v-file-input>
+          <v-text-field v-model="newProduct.name" label="Nom del producte"></v-text-field>
+          <v-text-field v-model="newProduct.list_price" label="Preu de venda" type="number"></v-text-field>
+          <v-text-field v-model="newProduct.standard_price" label="Precu de cost" type="number"></v-text-field>
+          <v-file-input v-model="newProduct.image_1920" label="Imatge del producte"></v-file-input>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -25,7 +25,7 @@
         <div class="grid-item">
           <h3>{{ product.name }}</h3>
           <img v-if="product.image_1920" :src="product.image_1920" alt="Imagen del producto" />
-          <p>Precio de venta: {{ product.list_price }}</p>
+          <p>Preu de venta: {{ product.list_price }}</p>
           <v-btn color="red darken-1" text @click="deleteProduct(product.id)">Eliminar</v-btn>
         </div>
       </v-col>

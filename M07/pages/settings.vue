@@ -1,20 +1,20 @@
 <template>
   <div class="container">
-    <h2>Configuración</h2>
+    <h2>Configuració</h2>
     <div class="input-container">
-      <label for="aceleracion-tronco">Aceleración del tronco:</label>
+      <label for="aceleracion-tronco">Aceleració de l'obstacle:</label>
       <input type="range" id="aceleracion-tronco" min="0.1" max="50" step="0.1" v-model="aceleracionTronco">
       <span id="valor-aceleracion-tronco">{{ aceleracionTronco }}</span>
     </div>
     <div class="input-container">
-      <label for="dano-personaje">Daño recibido del personaje:</label>
+      <label for="dano-personaje">Dany rebut del jugador:</label>
       <input type="number" id="dano-personaje" v-model="danoPersonaje">
     </div>
     <div class="input-container">
-      <label for="velocidad-personaje">Velocidad del personaje:</label>
+      <label for="velocidad-personaje">Velocitat del jugador:</label>
       <input type="number" id="velocidad-personaje" v-model="velocidadPersonaje">
     </div>
-    <button class="custom-button" @click="enviarDatos">Enviar</button>
+    <button class="custom-button" @click="enviarDatos">Guardar</button>
   </div>
 </template>
 

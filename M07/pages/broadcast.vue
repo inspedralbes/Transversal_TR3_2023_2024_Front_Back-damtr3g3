@@ -2,12 +2,12 @@
   <div class="container">
     <h2>Broadcast</h2>
     <div class="message-box">
-      <h3>Título del mensaje</h3>
-      <input type="text" v-model="title" placeholder="Escribe aquí" />
+      <h3>Títol del missatge</h3>
+      <input type="text" v-model="title" placeholder="Text" />
     </div>
     <div class="message-box">
-      <h3>Mensaje a enviar</h3>
-      <textarea v-model="message" placeholder="Escribe aquí" style="height: 100px;"></textarea>
+      <h3>Missatge a enviar</h3>
+      <textarea v-model="message" placeholder="Text" style="height: 100px;"></textarea>
     </div>
     <button class="custom-button" @click="sendBroadcast">Enviar</button>
   </div>
