@@ -67,35 +67,15 @@ def create_sale_order(url, db, username, password, product_id, name, list_price)
     # Confirm the invoice
     models.execute_kw(db, uid, password, 'account.move', 'action_post', [invoice_id])
 
-    # Get the id of the invoice report
-    report_id = models.execute_kw(db, uid, password, 'ir.actions.report', 'search', [[['report_name', '=', 'Report de la compra']]])[0]
+    # Create a payment register
+    payment_register_id = models.execute_kw(db, uid, password, 'account.payment.register', 'create', [{
+        'journal_id': 6,  # replace with your bank journal ID
+        'payment_method_id': 1,  # replace with your payment method ID
+        'invoice_ids': [(4, invoice_id)]
+    }], {'context': {'active_model': 'account.move', 'active_ids': [invoice_id]}})
 
-    # Generate the report for the invoice
-    report_result, report_format = models.execute_kw(db, uid, password, 'ir.actions.report', 'render_report', [report_id, [invoice_id]])
-
-    # The report file is the binary data of the report_result
-    report_file = base64.b64decode(report_result)
-
-    # Create an attachment with the report file
-    attachment_id = models.execute_kw(db, uid, password, 'ir.attachment', 'create', [{
-        'name': 'Invoice.pdf',
-        'datas': base64.b64encode(report_file),
-        'res_model': 'account.move',
-        'res_id': invoice_id,
-        'type': 'binary'
-    }])
-
-    # Send the invoice via email with the report file attached
-    models.execute_kw(db, uid, password, 'account.move', 'message_post', [invoice_id], {
-        'body': "S'ha generat la factura de la compra. La podeu veure a l'apartat de facturació de la vostra compte.",
-        'subject': "Factura de la compra",
-        'partner_ids': [(4, partner_id)],  # partner_id is the id of the recipient
-        'message_type': 'notification',
-        'subtype': 'mail.mt_comment',  # or 'mail.mt_note' for a note
-        'attachment_ids': [(4, attachment_id)],  # attach the report file
-    })
-
-
+    # Create payments
+    models.execute_kw(db, uid, password, 'account.payment.register', 'create_payments', [[payment_register_id]])
 
     print("Sent email to partner.")
 
