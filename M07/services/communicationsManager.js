@@ -97,3 +97,9 @@ export async function enviarDatosAlServidor(aceleracionTronco, danoPersonaje, ve
     throw error;
   }
 }
+
+export async function checkContainerStatus() {
+  const response = await fetch(BASE_URL + '/api/status');
+  const data = await response.text();
+  return data;
+}

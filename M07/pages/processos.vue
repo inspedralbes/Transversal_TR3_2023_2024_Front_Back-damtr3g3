@@ -2,30 +2,30 @@
   <div class="flex justify-center">
     <section class="border rounded p-4 m-2">
       <h2 class="text-center">Procesos Iniciats</h2>
-      <button 
-        v-if="!processRunning" 
-        @click="startDockerContainer" 
+      <button
+        v-if="!processRunning"
+        @click="startDockerContainer"
         class="px-4 py-2 mt-4 rounded text-white bg-green-500 w-full"
       >
-        Iniciar process
+        Iniciar odoo
       </button>
     </section>
 
     <section class="border rounded p-4 m-2">
       <h2 class="text-center">Procesos Aturats</h2>
-      <button 
-        v-if="processRunning" 
-        @click="stopDockerContainer" 
+      <button
+        v-if="processRunning"
+        @click="stopDockerContainer"
         class="px-4 py-2 mt-4 rounded text-white bg-red-500 w-full"
       >
-        Aturar process
+        Aturar odoo
       </button>
     </section>
   </div>
 </template>
 
 <script>
-import { startContainer, stopContainer } from '../services/communicationsManager';
+import { startContainer, stopContainer, checkContainerStatus } from '../services/communicationsManager';
 
 export default {
   data() {
@@ -47,7 +47,19 @@ export default {
       if (response === 'Shutting down container') {
         this.processRunning = false;
       }
-    }
+    },
+    async checkDockerContainerStatus() {
+  const response = await checkContainerStatus();
+  console.log(response);
+  if (response.includes('Up')) {
+    this.processRunning = true;
+  } else {
+    this.processRunning = false;
+  }
+}
+  },
+  created() {
+    this.checkDockerContainerStatus();
   }
 };
 </script>
