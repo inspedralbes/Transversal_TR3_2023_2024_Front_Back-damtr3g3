@@ -65,7 +65,7 @@ app.get('/api/products', async (req, res) => {
       res.status(500).json({ message: 'An error occurred during authentication' });
     } else {
       const models = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/object');
-      models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'product.product', 'search_read', [[]]], function (error, products) {
+      models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'product.product', 'search_read', [[], ['name', 'list_price', 'standard_price', 'type', 'image_1920', 'default_code']]], function (error, products) {
         if (error) {
           console.error('Error:', error);
           res.status(500).json({ message: 'An error occurred' });
@@ -82,6 +82,8 @@ app.get('/api/products', async (req, res) => {
                   reject(error);
                 } else {
                   product.orderCount = orderCount;
+                  console.log(product.default_code);
+                  product.id = product.default_code[0];
                   resolve();
                 }
               });
@@ -95,6 +97,7 @@ app.get('/api/products', async (req, res) => {
     }
   });
 });
+
 
 
 app.post('/api/products', async (req, res) => {
@@ -115,6 +118,7 @@ app.post('/api/products', async (req, res) => {
         'standard_price': req.body.standard_price,
         'type': req.body.type,
         'image_1920': base64Image,  // Usa la imagen codificada en base64
+        'default_code': req.body.default_code,  // Usa la referencia interna
       }]], function (error, product_id) {
         if (error) {
           console.error('Error:', error);
@@ -126,6 +130,7 @@ app.post('/api/products', async (req, res) => {
     }
   });
 });
+
 app.post('/api/images', async (req, res) => {
   // Extrae la imagen codificada en base64 y el ID del producto de la solicitud
   const base64Image = req.body.image;

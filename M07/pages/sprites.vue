@@ -11,6 +11,7 @@
           <v-text-field v-model="newProduct.name" label="Nom del producte"></v-text-field>
           <v-text-field v-model="newProduct.list_price" label="Preu de venda" type="number"></v-text-field>
           <v-text-field v-model="newProduct.standard_price" label="Precu de cost" type="number"></v-text-field>
+          <v-text-field v-model="newProduct.default_code" label="Referencia interna" type="text"></v-text-field> <!-- Nuevo campo para referencia interna -->
           <v-file-input v-model="newProduct.image_1920" label="Imatge del producte"></v-file-input>
         </v-card-text>
         <v-card-actions>
@@ -32,6 +33,7 @@
     </v-row>
   </div>
 </template>
+
 <script>
 import { getProducts, createProduct, deleteProduct,sendImageToServer   } from '../services/communicationsManager';
 
@@ -46,6 +48,7 @@ export default {
         standard_price: 0,
         type: 'service',
         image_1920: null,
+        default_code: '', // Nuevo campo para referencia interna
       },
     };
   },
