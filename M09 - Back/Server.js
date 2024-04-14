@@ -146,7 +146,7 @@ app.post('/api/images', async (req, res) => {
   }
 });
 
-app.delete('/api/products/:id', async (req, res) => {
+app.delete('/api/products/:default_code', async (req, res) => {
   const common = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/common');
   common.methodCall('authenticate', ['grup3', 'a22jonmarqui@inspedralbes.cat', 'Pedralbes24-', {}], function (error, uid) {
     if (error) {
@@ -154,21 +154,31 @@ app.delete('/api/products/:id', async (req, res) => {
       res.status(500).json({ message: 'An error occurred during authentication' });
     } else {
       const models = xmlrpc.createClient('http://141.147.8.58:8069/xmlrpc/2/object');
-      // Imprime el ID del producto en la consola
-      console.log(`Deleting product with ID: ${req.params.id}`);
-      models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'product.product', 'unlink', [[req.params.id]]], function (error, success) {
+      console.log(`Deleting product with default code: ${req.params.default_code}`);
+      models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'product.product', 'search', [[['default_code', '=', req.params.default_code]]]], function (error, productIds) {
         if (error) {
           console.error('Error:', error);
           res.status(500).json({ success: false, message: 'An error occurred' });
         } else {
-          // Agrega una declaración de registro para la función unlink
-          console.log(`Unlink function returned: ${success}`);
-          res.json({ success: true, message: 'Product deleted successfully!' });
+          if (productIds.length > 0) {
+            models.methodCall('execute_kw', ['grup3', uid, 'Pedralbes24-', 'product.product', 'unlink', [productIds]], function (error, success) {
+              if (error) {
+                console.error('Error:', error);
+                res.status(500).json({ success: false, message: 'An error occurred' });
+              } else {
+                console.log(`Unlink function returned: ${success}`);
+                res.json({ success: true, message: 'Product deleted successfully!' });
+              }
+            });
+          } else {
+            res.status(404).json({ success: false, message: 'Product not found' });
+          }
         }
       });
     }
   });
 });
+
 
 app.get('/api/userProducts', async (req, res) => {
   const username = req.query.username;

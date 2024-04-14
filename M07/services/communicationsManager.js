@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:3327";
+const BASE_URL = "http://grup3joc.dam.inspedralbes.cat:3327";
 
 export async function getProducts() {
   const response = await fetch(BASE_URL + '/api/products');
@@ -45,8 +45,8 @@ export async function createProduct(product) {
   const data = await response.json();
   return data;
 }
-export async function deleteProduct(id) {
-  const response = await fetch(BASE_URL + '/api/products/' + id, {
+export async function deleteProduct(default_code) {
+  const response = await fetch(BASE_URL + '/api/products/' + default_code, {
     method: 'DELETE',
   });
   const data = await response.json();

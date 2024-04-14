@@ -10,7 +10,7 @@
         <v-card-text>
           <v-text-field v-model="newProduct.name" label="Nom del producte"></v-text-field>
           <v-text-field v-model="newProduct.list_price" label="Preu de venda" type="number"></v-text-field>
-          <v-text-field v-model="newProduct.standard_price" label="Precu de cost" type="number"></v-text-field>
+          <v-text-field v-model="newProduct.standard_price" label="Preu de cost" type="number"></v-text-field>
           <v-text-field v-model="newProduct.default_code" label="Referencia interna" type="text"></v-text-field> <!-- Nuevo campo para referencia interna -->
           <v-file-input v-model="newProduct.image_1920" label="Imatge del producte"></v-file-input>
         </v-card-text>
@@ -103,11 +103,10 @@ export default {
   this.products = await getProducts();
 },
 
-  async deleteProduct(id) {
-  // Imprime el ID del producto en la consola
-  console.log(`Deleting product with ID: ${id}`);
+async deleteProduct(default_code) {
+  console.log(`Deleting product with default code: ${default_code}`);
 
-  const response = await deleteProduct(id);
+  const response = await deleteProduct(default_code);
   if (response && response.success) {
     alert('Producto eliminado correctamente!');
     this.products = await getProducts();  // Actualizar la lista de productos
