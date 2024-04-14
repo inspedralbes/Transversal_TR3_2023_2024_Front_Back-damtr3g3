@@ -1,9 +1,8 @@
 import xmlrpc.client
 import sys
 import base64
-import requests
 
-def create_sale_order(url, db, username, password, product_id, name, list_price):
+def create_sale_order(url, db, username, password, default_code, name, list_price):
     print(sys.argv)
     common = xmlrpc.client.ServerProxy('{}/xmlrpc/2/common'.format(url))
     uid = common.authenticate(db, username, password, {})
@@ -24,6 +23,15 @@ def create_sale_order(url, db, username, password, product_id, name, list_price)
 
     partner = models.execute_kw(db, uid, password, 'res.partner', 'read', [partner_id], {'fields': ['email']})
     partner_email = partner[0]['email']
+
+    # Buscar el producto por default_code
+    product_ids = models.execute_kw(db, uid, password, 'product.product', 'search', [[['default_code', '=', default_code]]])
+
+    if not product_ids:
+        print("No product found with the given default_code.")
+        sys.exit(1)
+
+    product_id = product_ids[0]
 
     sale_order_id = models.execute_kw(db, uid, password, 'sale.order', 'create', [{
         'partner_id': partner_id,
@@ -85,8 +93,9 @@ if __name__ == "__main__":
     db = "grup3"
     username = "a22jonmarqui@inspedralbes.cat"
     password = "Pedralbes24-"
-    product_id = int(sys.argv[1])
+    default_code = sys.argv[1]
     name = sys.argv[2]
     list_price = float(sys.argv[3])
 
-    create_sale_order(url, db, username, password, product_id, name, list_price)
+    create_sale_order(url, db, username, password, default_code, name, list_price)
+
