@@ -46,7 +46,7 @@ export default {
         name: '',
         list_price: 0,
         standard_price: 0,
-        type: 'service',
+        type: 'consu',
         image_1920: null,
         default_code: '', // Nuevo campo para referencia interna
       },
