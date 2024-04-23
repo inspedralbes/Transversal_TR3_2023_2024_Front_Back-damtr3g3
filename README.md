@@ -8,7 +8,7 @@
 
 ## 🌐 Projecte Desplegat
 El nostre projecte està actualment en creació.
-http://------.dam.inspedralbes.cat
+http://grup3joc.dam.inspedralbes.cat:3327
 
 ## 🎨 LLenguates utilizats 
 - JavaScript
