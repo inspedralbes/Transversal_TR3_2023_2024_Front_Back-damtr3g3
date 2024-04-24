@@ -2,6 +2,7 @@
     <div class="main-layout">
       <NavBar />
     </div>
+    <Footer />
   </template>
   
   <script>
