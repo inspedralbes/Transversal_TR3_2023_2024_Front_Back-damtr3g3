@@ -1,1 +1,1 @@
-Hola Jonathan.
+Curs 23/24, l’objectiu és crear ‘Lava Rush’, una app encisadora i funcional. El projecte, format per Albert, Ruben, Àngel i Jonathan, utilitza Node.js i Nuxt. Node.js gestiona les connexions a MySQL i MongoDB, mentre que Nuxt gestiona la interfície d’usuari. Les dues parts treballen juntes per proporcionar una experiència d’usuari suau i eficient. A més, ‘Lava Rush’ està desenvolupat amb libGDX, una eina potent per a crear experiències de joc immersives.
